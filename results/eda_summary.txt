@@ -1,0 +1,20 @@
+COFFEE SHOP SALES - EDA SUMMARY
+================================================================================
+
+Date Range: 2023-01-01 to 2023-06-30
+Total Days: 181
+Total Revenue: $698,812.33
+Daily Mean: $3,860.84
+Daily Std Dev: $1,187.82
+Growth Rate: +124.4%
+Coefficient of Variation: 30.8%
+
+KEY FINDINGS:
+--------------------------------------------------------------------------------
+1. Time Series is NON-STATIONARY → Differencing required (d=1)
+2. Strong upward trend: +124.4% growth
+3. Weekly seasonality detected (period=7)
+4. Moderate volatility (CV=30.8%)
+5. Peak hours: 9AM-11AM
+6. All stores perform equally (~33% each)
+7. Coffee (38.6%) and Tea (28.1%) dominate revenue
