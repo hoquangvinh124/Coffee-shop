@@ -167,7 +167,12 @@ class CartWidget(QWidget, Ui_CartWidget):
 
             # Disable checkout
             self.checkoutButton.setEnabled(False)
-            self.updateSummary(0, 0, 0, 0)
+            # Update summary to show zero
+            self.subtotalLabel.setText("Tạm tính: 0đ")
+            self.discountLabel.setText("Giảm giá: 0đ")
+            self.discountLabel.setVisible(False)
+            self.deliveryFeeLabel.setText("Phí giao hàng: 0đ")
+            self.totalLabel.setText("Tổng: 0đ")
             return
 
         # Enable checkout
