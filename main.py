@@ -111,6 +111,9 @@ class CoffeeShopApp:
         # Create main window
         self.main_window = MainWindow()
         self.main_window.logout_requested.connect(self.handle_logout)
+        
+        # Set window to maximized
+        self.main_window.showMaximized()
 
         # Create and add menu widget
         menu_widget = MenuWidget()
@@ -166,9 +169,9 @@ class CoffeeShopApp:
         # Switch to menu page
         self.main_window.switch_page(0)
 
-        # Hide stacked widget and show main window
+        # Hide stacked widget and show main window maximized
         self.stacked_widget.hide()
-        self.main_window.show()
+        self.main_window.showMaximized()
 
     def handle_checkout(self, cart_widget):
         """Handle checkout process"""

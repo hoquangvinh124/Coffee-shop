@@ -148,11 +148,18 @@ class FavoritesWidget(QWidget, Ui_FavoritesWidget):
         self.favoritesCountLabel.setText(f"{len(products)} sản phẩm")
 
         if not products:
-            # Show empty state
+            # Show empty state - centered
+            empty_widget = QWidget()
+            empty_layout = QVBoxLayout(empty_widget)
+            empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
             empty_label = QLabel("❤️\n\nChưa có sản phẩm yêu thích\n\nHãy thêm sản phẩm yêu thích từ menu!")
             empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            empty_label.setStyleSheet("font-size: 16px; color: #999; padding: 50px;")
-            self.favoritesGridLayout.addWidget(empty_label, 0, 0, 1, 3)
+            empty_label.setStyleSheet("font-size: 18px; color: #999; padding: 50px;")
+            empty_layout.addWidget(empty_label)
+            
+            # Add to grid layout spanning all columns with center alignment
+            self.favoritesGridLayout.addWidget(empty_widget, 0, 0, 1, 3, Qt.AlignmentFlag.AlignCenter)
             return
 
         # Add products to grid
