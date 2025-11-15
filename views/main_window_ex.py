@@ -20,6 +20,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        
+        # Hide status bar to remove bottom white space
+        self.statusbar.hide()
 
         self.auth_controller = AuthController()
         self.user_controller = UserController()

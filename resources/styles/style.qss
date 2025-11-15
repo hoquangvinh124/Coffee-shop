@@ -33,6 +33,7 @@ QMainWindow {
 
 #sidebarWidget QLabel {
     color: #ffffff;
+    background-color: transparent;
 }
 
 #sidebarWidget QPushButton {
@@ -414,6 +415,7 @@ QFrame {
 
 #logoLabel {
     color: #c7a17a;
+    background-color: transparent;
 }
 
 #titleLabel {

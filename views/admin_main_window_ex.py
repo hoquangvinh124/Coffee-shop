@@ -16,6 +16,9 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        
+        # Hide status bar to remove bottom white space
+        self.statusbar.hide()
 
         self.admin_controller = AdminController()
 

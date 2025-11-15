@@ -43,7 +43,7 @@ class Ui_FavoritesWidget:
 
         scroll_content = QWidget()
         self.favoritesGridLayout = QGridLayout(scroll_content)
-        self.favoritesGridLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.favoritesGridLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         self.favoritesGridLayout.setSpacing(20)
 
         scroll.setWidget(scroll_content)
