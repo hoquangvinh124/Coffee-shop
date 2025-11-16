@@ -25,9 +25,11 @@ ENV/
 !results/*.csv
 
 # Models
-*.pkl
-*.joblib
-*.h5
+models/*.pkl
+models/*.keras
+models/*.h5
+models/*.joblib
+!models/README.md
 
 # Jupyter
 .ipynb_checkpoints/
