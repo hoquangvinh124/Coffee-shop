@@ -31,7 +31,7 @@ ENV/
 
 # Jupyter
 .ipynb_checkpoints/
-*.ipynb
+# *.ipynb  # Allow ML_Regression_Revenue_Prediction.ipynb to be committed
 
 # OS
 .DS_Store
