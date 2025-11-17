@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(dir \"C:\\Coffee-shop\\views\")"
       "Bash(dir:*)",
       "Bash(nul)",
       "Bash(tasklist:*)",
