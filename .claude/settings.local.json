@@ -2,6 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(dir \"C:\\Coffee-shop\\views\")"
+      "Bash(dir:*)",
+      "Bash(nul)",
+      "Bash(tasklist:*)",
+      "Bash(jupyter nbconvert:*)",
+      "Bash(python:*)",
+      "Bash(tree:*)",
+      "Bash(if not exist \"c:\\Coffee-shop\\models\" mkdir \"c:\\Coffee-shop\\models\")"
     ],
     "deny": [],
     "ask": []
