@@ -5,10 +5,6 @@ Admin interface for managing coffee shop operations
 """
 
 import sys
-import subprocess
-import time
-import requests
-import atexit
 from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QStackedWidget, QMessageBox
 from PyQt6.QtCore import Qt
@@ -26,80 +22,12 @@ from utils.database import db
 from utils.config import STYLES_DIR, APP_NAME
 
 
-class APIServerManager:
-    """Manage FastAPI server lifecycle"""
-
-    def __init__(self):
-        self.process = None
-        self.api_url = "http://localhost:8000"
-
-    def start(self):
-        """Start the API server"""
-        # Check if server is already running
-        if self.is_running():
-            print("API server is already running")
-            return True
-
-        print("Starting API server...")
-        try:
-            # Get path to app.py
-            app_path = Path(__file__).parent / "app.py"
-
-            # Start server as subprocess
-            self.process = subprocess.Popen(
-                [sys.executable, str(app_path)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-
-            # Wait for server to start (max 30 seconds)
-            for i in range(30):
-                time.sleep(1)
-                if self.is_running():
-                    print("✅ API server started successfully!")
-                    return True
-                print(f"Waiting for API server... ({i+1}/30)")
-
-            print("⚠️ API server took too long to start")
-            return False
-
-        except Exception as e:
-            print(f"❌ Failed to start API server: {e}")
-            return False
-
-    def is_running(self):
-        """Check if API server is running"""
-        try:
-            response = requests.get(f"{self.api_url}/health", timeout=1)
-            return response.status_code == 200
-        except:
-            return False
-
-    def stop(self):
-        """Stop the API server"""
-        if self.process:
-            print("Stopping API server...")
-            self.process.terminate()
-            try:
-                self.process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
-            print("API server stopped")
-
-
 class CoffeeShopAdminApp:
     """Main admin application class"""
 
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.app.setApplicationName(f"{APP_NAME} - Admin Panel")
-
-        # Initialize API server manager
-        self.api_server = APIServerManager()
-
-        # Register cleanup on exit
-        atexit.register(self.cleanup)
 
         # Load stylesheet
         self.load_stylesheet()
@@ -116,9 +44,6 @@ class CoffeeShopAdminApp:
         # Test database connection
         self.check_database_connection()
 
-        # Start API server
-        self.start_api_server()
-
         # Setup windows
         self.setup_windows()
 
@@ -134,32 +59,6 @@ class CoffeeShopAdminApp:
                     self.app.setStyleSheet(f.read())
         except Exception as e:
             print(f"Warning: Could not load stylesheet: {e}")
-
-    def start_api_server(self):
-        """Start API server with user notification"""
-        try:
-            # Try to start server
-            if not self.api_server.start():
-                reply = QMessageBox.warning(
-                    None,
-                    "Cảnh báo API Server",
-                    "Không thể khởi động API server tự động.\n\n"
-                    "Tính năng Dự báo doanh thu sẽ không hoạt động.\n\n"
-                    "Bạn có thể:\n"
-                    "1. Bỏ qua và tiếp tục (các tính năng khác vẫn hoạt động)\n"
-                    "2. Thoát và khởi động API server thủ công: python app.py",
-                    QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Close
-                )
-
-                if reply == QMessageBox.StandardButton.Close:
-                    sys.exit(0)
-        except Exception as e:
-            print(f"Error starting API server: {e}")
-
-    def cleanup(self):
-        """Cleanup resources on exit"""
-        if hasattr(self, 'api_server'):
-            self.api_server.stop()
 
     def check_database_connection(self):
         """Check database connection on startup"""
@@ -290,10 +189,7 @@ class CoffeeShopAdminApp:
 
     def run(self):
         """Run the application"""
-        try:
-            return self.app.exec()
-        finally:
-            self.cleanup()
+        return self.app.exec()
 
 
 def main():

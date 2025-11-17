@@ -1,43 +1,43 @@
 """
-Admin ML Analytics Widget - Extended Logic
-Display comprehensive revenue forecasting with store comparisons
+Admin ML Analytics Widget - Revenue Forecasting
+Direct model prediction without API
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-                              QComboBox, QLabel, QMessageBox, QSpinBox, QGroupBox,
-                              QScrollArea, QFrame, QGridLayout, QSizePolicy)
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+                              QComboBox, QLabel, QMessageBox, QDateEdit, QGroupBox,
+                              QScrollArea, QFrame, QGridLayout, QSizePolicy, QSpinBox)
+from PyQt6.QtCore import Qt, QDate, QThread, pyqtSignal
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import requests
-import json
+from predictor import get_predictor
 
 
-class DataWorker(QThread):
-    """Worker thread for fetching data from API"""
+class PredictionWorker(QThread):
+    """Worker thread for running predictions"""
     finished = pyqtSignal(dict)
     error = pyqtSignal(str)
 
-    def __init__(self, api_url, endpoint, method="GET", params=None, json_data=None):
+    def __init__(self, predictor, task, **kwargs):
         super().__init__()
-        self.api_url = api_url
-        self.endpoint = endpoint
-        self.method = method
-        self.params = params or {}
-        self.json_data = json_data
+        self.predictor = predictor
+        self.task = task
+        self.kwargs = kwargs
 
     def run(self):
-        """Fetch data from API"""
+        """Run prediction task"""
         try:
-            url = f"{self.api_url}{self.endpoint}"
-            if self.method == "POST":
-                response = requests.post(url, params=self.params, json=self.json_data, timeout=30)
+            if self.task == 'overall':
+                result = self.predictor.predict_overall(**self.kwargs)
+            elif self.task == 'store':
+                result = self.predictor.predict_store(**self.kwargs)
+            elif self.task == 'top_stores':
+                result = self.predictor.get_top_stores(**self.kwargs)
+            elif self.task == 'bottom_stores':
+                result = self.predictor.get_bottom_stores(**self.kwargs)
             else:
-                response = requests.get(url, params=self.params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            self.finished.emit(data)
+                raise ValueError(f"Unknown task: {self.task}")
+            self.finished.emit(result)
         except Exception as e:
             self.error.emit(str(e))
 
@@ -45,18 +45,15 @@ class DataWorker(QThread):
 class CompactChart(FigureCanvas):
     """Compact chart widget"""
 
-    def __init__(self, parent=None, title="", width=5, height=3):
+    def __init__(self, parent=None, width=5, height=3):
         self.fig = Figure(figsize=(width, height), dpi=80)
         self.axes = self.fig.add_subplot(111)
         super().__init__(self.fig)
         self.setParent(parent)
-        self.chart_title = title
 
-        # Set size policy
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumHeight(250)
 
-        # Configure style
         self.fig.patch.set_facecolor('#ffffff')
         self.axes.set_facecolor('#ffffff')
         self.axes.grid(True, alpha=0.2, linestyle='--')
@@ -74,18 +71,14 @@ class CompactChart(FigureCanvas):
         dates = [f['date'] for f in forecasts]
         values = [f['forecast'] for f in forecasts]
 
-        # Plot
         self.axes.plot(dates, values, 'b-', linewidth=2, marker='o', markersize=3, alpha=0.7)
 
-        # Title
         if title:
             self.axes.set_title(title, fontsize=10, fontweight='bold', pad=10)
 
-        # Labels
         self.axes.set_xlabel('Ngày', fontsize=8)
         self.axes.set_ylabel('Doanh thu', fontsize=8)
 
-        # Format x-axis
         if len(dates) > 10:
             step = len(dates) // 8
             self.axes.set_xticks(range(0, len(dates), step))
@@ -95,7 +88,6 @@ class CompactChart(FigureCanvas):
             self.axes.set_xticks(range(len(dates)))
             self.axes.set_xticklabels(dates, rotation=45, ha='right', fontsize=7)
 
-        # Format y-axis
         from matplotlib.ticker import FuncFormatter
         def currency_formatter(x, p):
             if x >= 1000000:
@@ -109,7 +101,7 @@ class CompactChart(FigureCanvas):
         self.fig.tight_layout()
         self.draw()
 
-    def plot_bar_comparison(self, stores_data, title=""):
+    def plot_bar_comparison(self, stores_data, days, title=""):
         """Plot bar chart for store comparison"""
         self.axes.clear()
 
@@ -118,28 +110,23 @@ class CompactChart(FigureCanvas):
             self.draw()
             return
 
-        # Extract data
         store_names = [f"#{s['store_nbr']}" for s in stores_data]
-        revenues = [s['revenue'] for s in stores_data]
+        revenues = [s['forecast_avg_daily'] * days for s in stores_data]
 
-        # Plot
         bars = self.axes.bar(range(len(store_names)), revenues, color='#4CAF50', alpha=0.7)
 
-        # Highlight
         for bar in bars:
             height = bar.get_height()
             self.axes.text(bar.get_x() + bar.get_width()/2., height,
                           f'{height/1000:.0f}K',
                           ha='center', va='bottom', fontsize=7)
 
-        # Labels
         self.axes.set_title(title, fontsize=10, fontweight='bold', pad=10)
         self.axes.set_xlabel('Cửa hàng', fontsize=8)
         self.axes.set_ylabel('Doanh thu', fontsize=8)
         self.axes.set_xticks(range(len(store_names)))
         self.axes.set_xticklabels(store_names, fontsize=7)
 
-        # Format y-axis
         from matplotlib.ticker import FuncFormatter
         def currency_formatter(x, p):
             if x >= 1000000:
@@ -155,19 +142,17 @@ class CompactChart(FigureCanvas):
 
 
 class AdminMLAnalyticsWidget(QWidget):
-    """Admin ML Analytics widget with comprehensive forecasting"""
+    """Admin ML Analytics widget"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.api_url = "http://localhost:8000"
-        self.stores_list = []
+        self.predictor = get_predictor()
         self.current_data = {}
         self.setup_ui()
         self.load_stores()
 
     def setup_ui(self):
-        """Setup the user interface"""
-        # Main scroll area
+        """Setup UI"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -192,43 +177,39 @@ class AdminMLAnalyticsWidget(QWidget):
         """)
         main_layout.addWidget(title_label)
 
-        # Control panel
+        # Controls
         control_panel = self.create_control_panel()
         main_layout.addWidget(control_panel)
 
-        # Stat cards
+        # Stats
         stats_group = self.create_stats_panel()
         main_layout.addWidget(stats_group)
 
-        # Main forecasts (side by side)
+        # Charts row 1
         forecasts_layout = QHBoxLayout()
 
-        # Overall forecast (left)
         self.overall_group = self.create_forecast_group("🌐 Dự Báo Tổng Thể")
-        self.overall_chart = CompactChart(self, "Tổng Thể Cửa Hàng")
+        self.overall_chart = CompactChart(self)
         self.overall_group.layout().addWidget(self.overall_chart)
         forecasts_layout.addWidget(self.overall_group)
 
-        # Individual store forecast (right)
         self.store_group = self.create_forecast_group("🏪 Dự Báo Từng Cửa Hàng")
-        self.store_chart = CompactChart(self, "Cửa Hàng Cụ Thể")
+        self.store_chart = CompactChart(self)
         self.store_group.layout().addWidget(self.store_chart)
         forecasts_layout.addWidget(self.store_group)
 
         main_layout.addLayout(forecasts_layout)
 
-        # Comparison charts (side by side)
+        # Charts row 2
         comparison_layout = QHBoxLayout()
 
-        # Top performers (left)
         self.top_group = self.create_forecast_group("🏆 Top Cửa Hàng Cao Nhất")
-        self.top_chart = CompactChart(self, "Top Performers")
+        self.top_chart = CompactChart(self)
         self.top_group.layout().addWidget(self.top_chart)
         comparison_layout.addWidget(self.top_group)
 
-        # Bottom performers (right)
         self.bottom_group = self.create_forecast_group("⚠️ Top Cửa Hàng Thấp Nhất")
-        self.bottom_chart = CompactChart(self, "Bottom Performers")
+        self.bottom_chart = CompactChart(self)
         self.bottom_group.layout().addWidget(self.bottom_chart)
         comparison_layout.addWidget(self.bottom_group)
 
@@ -261,31 +242,53 @@ class AdminMLAnalyticsWidget(QWidget):
         layout = QGridLayout(group)
         layout.setSpacing(10)
 
-        row = 0
-
         # Store selector
-        layout.addWidget(QLabel("Chọn cửa hàng:"), row, 0)
+        layout.addWidget(QLabel("Chọn cửa hàng:"), 0, 0)
         self.store_combo = QComboBox()
         self.store_combo.addItem("Đang tải...")
         self.store_combo.setMinimumWidth(250)
-        layout.addWidget(self.store_combo, row, 1)
+        layout.addWidget(self.store_combo, 0, 1)
 
-        # Period
-        layout.addWidget(QLabel("Số ngày dự báo:"), row, 2)
-        self.period_spin = QSpinBox()
-        self.period_spin.setRange(7, 365)
-        self.period_spin.setValue(30)
-        self.period_spin.setSuffix(" ngày")
-        layout.addWidget(self.period_spin, row, 3)
+        # Period selector - DROPDOWN
+        layout.addWidget(QLabel("Khoảng thời gian:"), 0, 2)
+        self.period_combo = QComboBox()
+        self.period_combo.addItems([
+            "7 Ngày",
+            "1 Tháng (30 ngày)",
+            "1 Quý (90 ngày)",
+            "1 Năm (365 ngày)",
+            "Tùy chỉnh"
+        ])
+        self.period_combo.currentIndexChanged.connect(self.on_period_changed)
+        layout.addWidget(self.period_combo, 0, 3)
 
-        row += 1
+        # Custom date range (hidden by default)
+        self.custom_label = QLabel("Từ:")
+        self.custom_label.hide()
+        layout.addWidget(self.custom_label, 1, 0)
+
+        self.start_date = QDateEdit()
+        self.start_date.setCalendarPopup(True)
+        self.start_date.setDate(QDate.currentDate())
+        self.start_date.hide()
+        layout.addWidget(self.start_date, 1, 1)
+
+        self.to_label = QLabel("Đến:")
+        self.to_label.hide()
+        layout.addWidget(self.to_label, 1, 2)
+
+        self.end_date = QDateEdit()
+        self.end_date.setCalendarPopup(True)
+        self.end_date.setDate(QDate.currentDate().addDays(30))
+        self.end_date.hide()
+        layout.addWidget(self.end_date, 1, 3)
 
         # Top N
-        layout.addWidget(QLabel("Top N cửa hàng:"), row, 0)
+        layout.addWidget(QLabel("Top N cửa hàng:"), 2, 0)
         self.topn_spin = QSpinBox()
         self.topn_spin.setRange(3, 20)
         self.topn_spin.setValue(10)
-        layout.addWidget(self.topn_spin, row, 1)
+        layout.addWidget(self.topn_spin, 2, 1)
 
         # Analyze button
         self.analyze_btn = QPushButton("📊 Phân Tích Dự Đoán")
@@ -303,12 +306,25 @@ class AdminMLAnalyticsWidget(QWidget):
             QPushButton:disabled { background-color: #ccc; }
         """)
         self.analyze_btn.clicked.connect(self.run_analysis)
-        layout.addWidget(self.analyze_btn, row, 2, 1, 2)
+        layout.addWidget(self.analyze_btn, 2, 2, 1, 2)
 
         return group
 
+    def on_period_changed(self, index):
+        """Handle period selection change"""
+        if index == 4:  # Tùy chỉnh
+            self.custom_label.show()
+            self.start_date.show()
+            self.to_label.show()
+            self.end_date.show()
+        else:
+            self.custom_label.hide()
+            self.start_date.hide()
+            self.to_label.hide()
+            self.end_date.hide()
+
     def create_stats_panel(self):
-        """Create statistics panel"""
+        """Create stats panel"""
         group = QGroupBox("📈 Thống Kê Tổng Quan")
         group.setStyleSheet("""
             QGroupBox {
@@ -360,7 +376,7 @@ class AdminMLAnalyticsWidget(QWidget):
         return card
 
     def create_forecast_group(self, title):
-        """Create forecast group box"""
+        """Create forecast group"""
         group = QGroupBox(title)
         group.setStyleSheet("""
             QGroupBox {
@@ -381,35 +397,37 @@ class AdminMLAnalyticsWidget(QWidget):
         return group
 
     def update_stat_card(self, card, value):
-        """Update stat card value"""
+        """Update stat card"""
         value_label = card.findChild(QLabel, "value")
         if value_label:
             value_label.setText(value)
 
     def load_stores(self):
-        """Load all stores"""
-        self.store_combo.setEnabled(False)
-        worker = DataWorker(self.api_url, "/stores")
-        worker.finished.connect(self.on_stores_loaded)
-        worker.error.connect(self.on_error)
-        worker.start()
-        self.stores_worker = worker
+        """Load stores list"""
+        try:
+            stores = self.predictor.get_all_stores()
+            self.store_combo.clear()
+            for store in stores:
+                self.store_combo.addItem(
+                    f"Store #{store['store_nbr']} - {store['city']} (Type {store['type']})",
+                    store['store_nbr']
+                )
+        except Exception as e:
+            QMessageBox.warning(self, "Lỗi", f"Không thể load danh sách cửa hàng:\n{str(e)}")
 
-    def on_stores_loaded(self, data):
-        """Handle stores loaded"""
-        self.stores_list = data.get('stores', [])
-        self.store_combo.clear()
-
-        for store in self.stores_list:
-            store_nbr = store['store_nbr']
-            city = store.get('city', 'N/A')
-            store_type = store.get('type', 'N/A')
-            self.store_combo.addItem(f"Store #{store_nbr} - {city} (Type {store_type})", store_nbr)
-
-        self.store_combo.setEnabled(True)
+    def get_days(self):
+        """Get number of days from selection"""
+        period_index = self.period_combo.currentIndex()
+        if period_index == 4:  # Custom
+            start = self.start_date.date().toPyDate()
+            end = self.end_date.date().toPyDate()
+            return (end - start).days
+        else:
+            days_map = {0: 7, 1: 30, 2: 90, 3: 365}
+            return days_map[period_index]
 
     def run_analysis(self):
-        """Run comprehensive analysis"""
+        """Run analysis"""
         if self.store_combo.currentIndex() < 0:
             QMessageBox.warning(self, "Lỗi", "Vui lòng chọn cửa hàng!")
             return
@@ -417,45 +435,27 @@ class AdminMLAnalyticsWidget(QWidget):
         self.analyze_btn.setEnabled(False)
         self.analyze_btn.setText("⏳ Đang phân tích...")
 
-        # Get parameters
         store_nbr = self.store_combo.currentData()
-        days = self.period_spin.value()
+        days = self.get_days()
         top_n = self.topn_spin.value()
 
-        # Store for comparison
-        self.current_params = {
-            'store_nbr': store_nbr,
-            'days': days,
-            'top_n': top_n
-        }
+        self.current_params = {'store_nbr': store_nbr, 'days': days, 'top_n': top_n}
 
-        # Fetch overall forecast
-        self.fetch_overall_forecast(days)
-
-    def fetch_overall_forecast(self, days):
-        """Fetch overall forecast"""
-        worker = DataWorker(self.api_url, "/forecast", method="POST", params={'days': days})
-        worker.finished.connect(self.on_overall_loaded)
-        worker.error.connect(self.on_error)
-        worker.start()
-        self.overall_worker = worker
+        # Run overall prediction
+        self.worker = PredictionWorker(self.predictor, 'overall', days=days)
+        self.worker.finished.connect(self.on_overall_loaded)
+        self.worker.error.connect(self.on_error)
+        self.worker.start()
 
     def on_overall_loaded(self, data):
         """Handle overall forecast loaded"""
         self.current_data['overall'] = data
-
-        # Update chart
         self.overall_chart.plot_line_forecast(data, "Dự Báo Tổng Thể Hệ Thống")
 
-        # Fetch store forecast
-        store_nbr = self.current_params['store_nbr']
-        days = self.current_params['days']
-        self.fetch_store_forecast(store_nbr, days)
-
-    def fetch_store_forecast(self, store_nbr, days):
-        """Fetch store forecast"""
-        worker = DataWorker(self.api_url, f"/stores/{store_nbr}/forecast",
-                           method="POST", params={'days': days})
+        # Run store prediction
+        worker = PredictionWorker(self.predictor, 'store',
+                                 store_nbr=self.current_params['store_nbr'],
+                                 days=self.current_params['days'])
         worker.finished.connect(self.on_store_loaded)
         worker.error.connect(self.on_error)
         worker.start()
@@ -465,7 +465,6 @@ class AdminMLAnalyticsWidget(QWidget):
         """Handle store forecast loaded"""
         self.current_data['store'] = data
 
-        # Update chart
         store_name = f"Store #{data['store_nbr']} - {data['city']}"
         self.store_chart.plot_line_forecast(data, store_name)
 
@@ -483,48 +482,34 @@ class AdminMLAnalyticsWidget(QWidget):
         self.update_stat_card(self.stat3, f"{store_avg:,.0f} VNĐ")
         self.update_stat_card(self.stat4, f"{growth:+.1f}%")
 
-        # Fetch comparison data
-        self.fetch_comparison_data()
+        # Get top/bottom stores
+        self.fetch_comparison()
 
-    def fetch_comparison_data(self):
-        """Fetch data for top/bottom comparison"""
-        days = self.current_params['days']
-        top_n = self.current_params['top_n']
+    def fetch_comparison(self):
+        """Fetch comparison data"""
+        n = self.current_params['top_n']
 
-        # We'll fetch all stores and calculate
-        self.fetch_all_stores_forecast(days, top_n)
+        # Top stores
+        worker_top = PredictionWorker(self.predictor, 'top_stores', n=n)
+        worker_top.finished.connect(lambda data: self.on_top_loaded(data, self.current_params['days']))
+        worker_top.error.connect(self.on_error)
+        worker_top.start()
+        self.top_worker = worker_top
 
-    def fetch_all_stores_forecast(self, days, top_n):
-        """Fetch forecasts for all stores to compare"""
-        # Simplified: Get top N stores from metadata
-        worker = DataWorker(self.api_url, f"/stores/top/{top_n}")
-        worker.finished.connect(lambda data: self.on_top_stores_loaded(data, days))
-        worker.error.connect(self.on_error)
-        worker.start()
-        self.comparison_worker = worker
+        # Bottom stores
+        worker_bottom = PredictionWorker(self.predictor, 'bottom_stores', n=n)
+        worker_bottom.finished.connect(lambda data: self.on_bottom_loaded(data, self.current_params['days']))
+        worker_bottom.error.connect(self.on_error)
+        worker_bottom.start()
+        self.bottom_worker = worker_bottom
 
-    def on_top_stores_loaded(self, data, days):
+    def on_top_loaded(self, data, days):
         """Handle top stores loaded"""
-        stores = data.get('stores', [])
+        self.top_chart.plot_bar_comparison(data, days, f"Top {len(data)} Cao Nhất")
 
-        # Prepare data for charts
-        top_stores = stores[:self.topn_spin.value()]
-        bottom_stores = sorted(stores, key=lambda x: x['forecast_avg_daily'])[:self.topn_spin.value()]
-
-        # Calculate total revenue for period
-        top_data = [{
-            'store_nbr': s['store_nbr'],
-            'revenue': s['forecast_avg_daily'] * days
-        } for s in top_stores]
-
-        bottom_data = [{
-            'store_nbr': s['store_nbr'],
-            'revenue': s['forecast_avg_daily'] * days
-        } for s in bottom_stores]
-
-        # Plot
-        self.top_chart.plot_bar_comparison(top_data, f"Top {len(top_data)} Cửa Hàng Cao Nhất")
-        self.bottom_chart.plot_bar_comparison(bottom_data, f"Top {len(bottom_data)} Cửa Hàng Thấp Nhất")
+    def on_bottom_loaded(self, data, days):
+        """Handle bottom stores loaded"""
+        self.bottom_chart.plot_bar_comparison(data, days, f"Top {len(data)} Thấp Nhất")
 
         # Re-enable button
         self.analyze_btn.setEnabled(True)
@@ -534,10 +519,4 @@ class AdminMLAnalyticsWidget(QWidget):
         """Handle error"""
         self.analyze_btn.setEnabled(True)
         self.analyze_btn.setText("📊 Phân Tích Dự Đoán")
-
-        QMessageBox.warning(
-            self,
-            "Lỗi",
-            f"Không thể tải dữ liệu:\n{error_msg}\n\n"
-            "Vui lòng kiểm tra API server đang chạy."
-        )
+        QMessageBox.warning(self, "Lỗi", f"Không thể thực hiện dự đoán:\n{error_msg}")
