@@ -48,6 +48,13 @@ ENV/
 
 # Temporary files
 *.tmp
+
+# Large model files (use Git LFS or regenerate locally)
+**/random_forest_model.pkl
+**/models/*.pkl
+# Keep essential models
+!**/xgboost_model.pkl
+!**/xgboost_resampled_model.pkl
 *.bak
 *.cache
 
