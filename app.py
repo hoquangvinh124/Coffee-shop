@@ -8,7 +8,7 @@ import numpy as np
 from typing import List, Optional
 
 # Load the trained Prophet model
-MODEL_PATH = "models/revenue_prediction.pkl"
+MODEL_PATH = "ml-models/revenue_prediction.pkl"
 model = None
 
 @asynccontextmanager
