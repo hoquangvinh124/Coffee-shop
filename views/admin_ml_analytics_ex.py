@@ -163,7 +163,7 @@ class AdminMLAnalyticsWidget(QWidget):
         main_layout.setSpacing(15)
 
         # Title
-        title_label = QLabel("🤖 ML Analytics - Dự Đoán & So Sánh Cửa Hàng")
+        title_label = QLabel("📊 Dự Báo Doanh Thu - Phân Tích & So Sánh Cửa Hàng")
         title_label.setStyleSheet("""
             QLabel {
                 font-size: 22px;
