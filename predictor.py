@@ -20,6 +20,15 @@ class RevenuePredictor:
         self.metadata_file = self.models_dir / 'stores_metadata.csv'
         self.overall_model_path = base_dir / 'ml-models' / 'revenue_prediction.pkl'
 
+        # Check if paths exist
+        if not self.models_dir.exists():
+            # Try models/ folder as fallback
+            self.models_dir = base_dir / 'models' / 'store_models'
+            self.overall_model_path = base_dir / 'models' / 'revenue_prediction.pkl'
+
+        if not self.metadata_file.exists():
+            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
+
         # Load metadata
         self.metadata = pd.read_csv(self.metadata_file)
         self.loaded_models = {}
