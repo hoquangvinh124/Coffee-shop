@@ -1,0 +1,130 @@
+# Project Configuration
+project_name: "Targeted Marketing Strategy for Starbucks"
+version: "1.0.0"
+author: "Senior Data Scientist"
+
+# Data Paths
+data:
+  raw_path: "../data/"
+  processed_path: "../data/processed/"
+  portfolio_file: "portfolio.json"
+  profile_file: "profile.json"
+  transcript_file: "transcript.json"
+
+# Model Paths
+models:
+  save_path: "../models/"
+  dnn_model: "dnn_model.h5"
+  xgboost_model: "xgboost_model.pkl"
+  random_forest_model: "random_forest_model.pkl"
+
+# Results Paths
+results:
+  figures_path: "../results/figures/"
+  metrics_path: "../results/metrics/"
+
+# Preprocessing Parameters
+preprocessing:
+  test_size: 0.25
+  random_state: 42
+  stratify: true
+
+  # Features to scale
+  standard_scaler_features:
+    - age
+    - income
+
+  minmax_scaler_features:
+    - reward
+    - difficulty
+    - reg_month
+
+  # Categorical features
+  categorical_features:
+    - gender
+    - offer_id
+
+# Model Parameters
+dnn:
+  embedding_dim: 200
+  dense_layers: [32, 32, 32]
+  dropout_rate: 0.2
+  activation: "relu"
+  output_activation: "softmax"
+  optimizer: "adam"
+  loss: "sparse_categorical_crossentropy"
+  metrics: ["accuracy"]
+  epochs: 15
+  batch_size: 64
+
+xgboost:
+  max_depth: 10
+  gamma: 5
+  objective: "multi:softmax"
+  num_class: 5
+  eval_metric: ["merror", "mlogloss"]
+  n_estimators: 100
+  learning_rate: 0.1
+
+random_forest:
+  n_estimators: 150
+  class_weight: "balanced_subsample"
+  random_state: 42
+  n_jobs: -1
+
+# Imbalanced Data Handling
+imbalanced:
+  method: "random_oversampling" # Options: random_oversampling, class_weights, smote
+  sampling_strategy: "not majority"
+
+  # Class weights for DNN
+  class_weights:
+    0: 3.2 # offer received
+    1: 39.0 # offer viewed (minority)
+    2: 1.4 # transaction
+    3: 1.0 # offer completed (majority)
+    4: 6.0 # green flag (minority)
+
+# Target Mapping
+target:
+  event_mapping:
+    "offer received": 0
+    "offer viewed": 1
+    "transaction": 2
+    "offer completed": 3
+    "green flag": 4
+
+  class_names:
+    - "Offer Received"
+    - "Offer Viewed"
+    - "Transaction"
+    - "Offer Completed"
+    - "Green Flag"
+
+# Feature Names
+features:
+  numerical:
+    - age
+    - income
+    - reward
+    - difficulty
+    - duration
+    - reg_month
+
+  categorical:
+    - gender
+    - offer_id
+
+# Evaluation
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+
+  averaging: "micro" # For multiclass
+  cross_validation:
+    n_splits: 10
+    shuffle: true
+    random_state: 42
