@@ -1,3 +1,19 @@
+# Coffee Shop Application Requirements
+# Python 3.8+
+
+# GUI Framework
+PyQt6==6.6.1
+PyQt6-Qt6==6.6.1
+PyQt6-sip==13.6.0
+
+# Database
+mysql-connector-python==8.2.0
+
+# For future enhancements
+# requests==2.31.0  # For API calls (payment gateways, etc.)
+# pillow==10.1.0    # For image processing
+# qrcode==7.4.2     # For QR code generation (table ordering)
+# python-dotenv==1.0.0  # For environment variables
 # Core dependencies
 fastapi==0.109.0
 uvicorn[standard]==0.27.0

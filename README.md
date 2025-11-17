@@ -1,149 +1,265 @@
-# Coffee Shop Sales Forecasting - Prophet Model
+# ☕ Coffee Shop Application
 
-Dự án dự báo doanh thu Coffee Shop sử dụng mô hình Prophet của Facebook cho forecast 8 năm (2018-2025).
+Ứng dụng đặt hàng Coffee Shop đầy đủ tính năng được xây dựng bằng PyQt6 và MySQL.
 
-## Cấu trúc Project
+## 🎯 Tính năng
 
+### ✅ Đã hoàn thành
+
+1. **Đăng nhập & Tài khoản**
+   - ✅ Đăng ký tài khoản với email/số điện thoại
+   - ✅ Đăng nhập
+   - ✅ Xác thực OTP (infrastructure)
+   - ✅ Thẻ thành viên (Bronze/Silver/Gold)
+   - ✅ Hệ thống điểm thưởng
+
+2. **Menu & Trải nghiệm đặt món**
+   - ✅ Xem danh sách sản phẩm theo danh mục
+   - ✅ Tìm kiếm món
+   - ✅ Lọc theo nhiệt độ, caffeine
+   - ✅ Thông tin sản phẩm chi tiết
+   - ✅ Tùy chỉnh sản phẩm (size, sugar, ice, toppings)
+   - ✅ Tính giá realtime
+
+3. **Giỏ hàng**
+   - ✅ Thêm/Xóa/Sửa món
+   - ✅ Thay đổi số lượng
+   - ✅ Xóa tất cả
+   - ✅ Áp mã giảm giá/voucher
+   - ✅ Tính toán tổng tiền realtime
+   - ✅ Beautiful cart UI với item cards
+
+4. **Checkout & Payment**
+   - ✅ Checkout dialog với full options
+   - ✅ Chọn phương thức nhận hàng (Pickup/Delivery/Dine-in)
+   - ✅ Chọn cửa hàng (cho Pickup/Dine-in)
+   - ✅ Nhập địa chỉ giao hàng (cho Delivery)
+   - ✅ Nhập số bàn (cho Dine-in)
+   - ✅ 7 phương thức thanh toán (Cash, MoMo, ShopeePay, ZaloPay, Apple Pay, Google Pay, Card)
+   - ✅ Ghi chú đơn hàng
+   - ✅ Order summary preview
+
+5. **Quản lý đơn hàng**
+   - ✅ Lịch sử đơn hàng với beautiful UI
+   - ✅ Order tracking với visual timeline
+   - ✅ Xem chi tiết đơn hàng
+   - ✅ Reorder functionality
+   - ✅ Hủy đơn (pending/confirmed orders)
+   - ✅ Color-coded status badges
+   - ✅ Real-time status updates
+
+6. **Profile & Account**
+   - ✅ User profile display
+   - ✅ Membership tier hiển thị (Bronze/Silver/Gold)
+   - ✅ Loyalty points tracking
+   - ✅ Points to next tier calculation
+   - ✅ Order statistics
+   - ✅ Edit profile (name, phone)
+   - ✅ Change password
+   - ✅ Points history viewer
+   - ✅ Available vouchers viewer
+
+7. **Product Customization**
+   - ✅ Product detail dialog
+   - ✅ Size selection (S/M/L)
+   - ✅ Temperature (Hot/Cold)
+   - ✅ Sugar level slider (0-100%)
+   - ✅ Ice level slider (0-100%)
+   - ✅ Multiple toppings selection
+   - ✅ Quantity selector
+   - ✅ Real-time price calculation
+   - ✅ Calories display
+
+8. **Loyalty System**
+   - ✅ Tích điểm theo đơn hàng
+   - ✅ Hệ thống hạng thành viên (Bronze/Silver/Gold)
+   - ✅ Auto tier upgrade based on points
+   - ✅ Voucher và khuyến mãi
+   - ✅ Points history tracking
+
+### 🎨 UI/UX Highlights
+
+- ✅ Clean, modern interface theo phong cách Highland Coffee
+- ✅ Beautiful color scheme (Coffee tones)
+- ✅ Responsive layouts
+- ✅ Empty states for all views
+- ✅ Icon usage throughout
+- ✅ Visual feedback
+- ✅ Smooth transitions
+
+### 🚧 Placeholders (Backend Ready)
+
+- Payment gateway integration (API keys cần thiết)
+- AI-based product recommendations (ML model cần thiết)
+- Real-time GPS tracking (Maps API cần thiết)
+- Push notifications (Notification service cần thiết)
+- QR code table ordering (Backend ready)
+- Review submission UI (Backend ready)
+- Product images (Image hosting cần thiết)
+
+## 📋 Yêu cầu hệ thống
+
+- Python 3.8+
+- MySQL 8.0+
+- PyQt6
+
+## 🚀 Cài đặt
+
+### 1. Clone repository
+
+```bash
+git clone <repository-url>
+cd Coffee-shop
 ```
-Coffee-shop/
-├── data/                           # Dữ liệu
-│   ├── daily_sales_cafe.csv       # Dữ liệu doanh thu hàng ngày (2013-2017)
-│   └── holidays_prepared.csv      # Dữ liệu ngày lễ
-├── notebooks/                      # Jupyter notebooks
-│   └── prophet_forecasting.ipynb  # Notebook chính - Toàn bộ quy trình Prophet
-├── models/                         # Trained models
-│   └── prophet_model.pkl          # Trained Prophet model
-├── results/                        # Kết quả forecast và visualizations
-├── app.py                         # FastAPI application
-├── requirements.txt               # Python dependencies
-├── test_prophet.py                # Script test nhanh Prophet model
-└── README.md                      # File này
+
+### 2. Cài đặt dependencies
+
+```bash
+pip install -r requirements.txt
 ```
 
-## Mô hình Prophet
+### 3. Cấu hình database
 
-### Đặc điểm:
-- **Không có biến ngoại sinh (regressors)**: Chỉ dùng date và doanh thu
-- **Holidays**: Sử dụng Ecuador country holidays + custom holidays
-- **Seasonality**: Multiplicative mode với yearly và weekly patterns
+#### Tạo database MySQL:
 
-### Cấu hình:
+```bash
+mysql -u root -p < database/schema.sql
+```
+
+Hoặc import thủ công:
+
+```sql
+mysql -u root -p
+source database/schema.sql
+```
+
+#### Cấu hình kết nối database:
+
+Chỉnh sửa file `utils/config.py`:
+
 ```python
-config = {
-    'growth': 'linear',
-    'changepoint_prior_scale': 0.05,
-    'seasonality_mode': 'multiplicative',
-    'yearly_seasonality': 20,
-    'weekly_seasonality': 10,
-    'daily_seasonality': False,
-    'interval_width': 0.95
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'your_password',
+    'database': 'coffee_shop',
+    'port': 3306
 }
 ```
 
-## Cách chạy
+Hoặc sử dụng environment variables:
 
-### Option 1: Train Model với Jupyter Notebook
 ```bash
-# Mở notebook
-jupyter notebook notebooks/prophet_forecasting.ipynb
-
-# Hoặc với JupyterLab
-jupyter lab notebooks/prophet_forecasting.ipynb
+export DB_HOST=localhost
+export DB_USER=root
+export DB_PASSWORD=your_password
+export DB_NAME=coffee_shop
+export DB_PORT=3306
 ```
 
-Notebook bao gồm:
-1. Load và khám phá dữ liệu (EDA)
-2. Train mô hình Prophet
-3. Đánh giá mô hình (MAE, MAPE, RMSE, Coverage)
-4. Dự báo 8 năm
-5. Phân tích kết quả với visualizations
-6. Export kết quả ra CSV và lưu model vào `models/prophet_model.pkl`
+### 4. Chạy ứng dụng
 
-### Option 2: Chạy FastAPI (Serving model)
 ```bash
-# Cài đặt dependencies
-pip install -r requirements.txt
-
-# Chạy API server
-python app.py
-
-# Hoặc với uvicorn
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+python main.py
 ```
 
-API sẽ chạy tại: http://localhost:8000
+## 📁 Cấu trúc Project
 
-#### API Endpoints:
-- `GET /` - API info và danh sách endpoints
-- `GET /health` - Health check
-- `POST /forecast` - Dự báo với số ngày
-- `GET /forecast/range` - Dự báo theo khoảng thời gian
-
-#### Ví dụ sử dụng:
-```bash
-# Dự báo 30 ngày
-curl -X POST "http://localhost:8000/forecast" \
-  -H "Content-Type: application/json" \
-  -d '{"days": 30, "start_date": "2025-01-01"}'
-
-# Dự báo theo range
-curl "http://localhost:8000/forecast/range?start_date=2025-01-01&end_date=2025-01-31"
+```
+Coffee-shop/
+├── ui/                      # UI files (.ui)
+├── ui_generated/            # Generated Python files from UI
+├── views/                   # Logic files (_ex.py)
+│   ├── login_ex.py
+│   ├── register_ex.py
+│   ├── main_window_ex.py
+│   └── menu_ex.py
+├── models/                  # Database models
+│   ├── user.py
+│   ├── product.py
+│   ├── cart.py
+│   ├── order.py
+│   └── ...
+├── controllers/             # Business logic
+│   ├── auth_controller.py
+│   ├── menu_controller.py
+│   ├── cart_controller.py
+│   └── ...
+├── utils/                   # Utilities
+│   ├── database.py
+│   ├── config.py
+│   ├── validators.py
+│   └── helpers.py
+├── resources/               # Images, icons, styles
+│   └── styles/
+│       └── style.qss
+├── database/
+│   └── schema.sql
+├── main.py                  # Entry point
+└── requirements.txt
 ```
 
-Swagger UI: http://localhost:8000/docs
+## 🎨 Thiết kế
 
-### Option 3: Chạy test script (Quick test)
-```bash
-python test_prophet.py
+Giao diện được thiết kế theo phong cách Highland Coffee - clean, hiện đại với:
+- Color palette: Coffee tones (#c7a17a, #d4691e)
+- Rounded corners và shadows
+- Responsive layout
+- User-friendly navigation
+
+## 💾 Database Schema
+
+Database gồm các bảng chính:
+- `users` - Thông tin người dùng
+- `products` - Sản phẩm
+- `categories` - Danh mục
+- `toppings` - Topping
+- `cart` - Giỏ hàng
+- `orders` - Đơn hàng
+- `order_items` - Chi tiết đơn hàng
+- `vouchers` - Mã giảm giá
+- `reviews` - Đánh giá
+- `notifications` - Thông báo
+- `loyalty_points_history` - Lịch sử điểm
+- Và nhiều bảng khác...
+
+## 🔐 Tài khoản Demo
+
+Sau khi chạy schema.sql, bạn có thể đăng ký tài khoản mới hoặc tạo tài khoản demo:
+
+```sql
+-- Tạo user demo (password: Demo@123)
+INSERT INTO users (email, password_hash, full_name, membership_tier, loyalty_points)
+VALUES ('demo@coffeeshop.com',
+        '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',
+        'Demo User', 'Gold', 6000);
 ```
 
-Script này test logic chính của Prophet mà không cần Jupyter.
+## 📝 To-do List
 
-## Kết quả
+- [ ] Implement cart UI
+- [ ] Implement profile UI
+- [ ] Implement order tracking UI with timeline
+- [ ] Add product customization dialog
+- [ ] Integrate payment gateways
+- [ ] Add image upload for products
+- [ ] Implement notification system
+- [ ] Add QR code generation for table orders
+- [ ] Build admin panel
+- [ ] Add data analytics dashboard
 
-Từ test run mẫu:
+## 🤝 Contributing
 
-### Hiệu suất mô hình (In-Sample):
-- **MAE**: $11,623
-- **RMSE**: $16,332
-- **Coverage (95% CI)**: 93.54%
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Dự báo 8 năm (2018-2025):
-- **Projected CAGR**: 11.19%
-- **Total 8-Year Revenue**: $1,216.42M
-- **Average Daily Sales**: Tăng từ $246K (2017) lên $576K (2025)
+## 📄 License
 
-### Output files (trong folder `results/`):
-- `prophet_forecast_full.csv` - Full forecast với tất cả components
-- `forecast_2018_2025.csv` - Forecast tương lai (2018-2025)
-- `yearly_forecast_summary.csv` - Tổng hợp theo năm
-- `model_metrics.csv` - Metrics đánh giá mô hình
-- `prophet_model.pkl` - Trained model (để load lại sau)
-- `*.png` - 9 visualization plots
+This project is licensed under the MIT License.
 
-## Yêu cầu
+## 📧 Contact
 
-Packages cần thiết (đã có trong pyproject.toml):
-- pandas
-- numpy
-- prophet
-- matplotlib
-- seaborn
+For questions or support, please contact: [your-email@example.com]
 
-## Notes
+---
 
-1. **Mô hình này KHÔNG sử dụng biến ngoại sinh** - chỉ dựa trên:
-   - Time series pattern (trend + seasonality)
-   - Holidays effects
-
-2. **Để thêm biến ngoại sinh** (regressors) vào Prophet:
-   - Cần sửa code để add regressors như `is_weekend`, `month_sin/cos`, etc.
-   - Sử dụng `model.add_regressor('feature_name')`
-
-3. **Forecast period**: 8 years (2920 days)
-
-4. **Training data**: 2013-2017 (1688 days)
-
-## Tác giả
-
-Dự án thực hiện với Claude Code
+**Note**: Đây là project demo/educational. Một số tính năng như payment integration, Google/Apple login cần API keys và configuration bổ sung.
