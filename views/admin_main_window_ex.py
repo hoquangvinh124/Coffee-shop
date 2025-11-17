@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox, QWidget, QLabel, QVBoxLayo
 from PyQt6.QtCore import pyqtSignal
 from ui_generated.admin_main_window import Ui_AdminMainWindow
 from controllers.admin_controller import AdminController
+from views.admin_ml_analytics_ex import AdminMLAnalyticsWidget
 
 
 class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
@@ -33,10 +34,14 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
         self.categoriesButton.clicked.connect(lambda: self.switch_page(4))
         self.vouchersButton.clicked.connect(lambda: self.switch_page(5))
         self.reportsButton.clicked.connect(lambda: self.switch_page(6))
+        self.mlAnalyticsButton.clicked.connect(lambda: self.switch_page(7))
         self.logoutButton.clicked.connect(self.handle_logout)
 
         # Load admin data
         self.load_admin_info()
+
+        # Initialize ML Analytics widget
+        self.setup_ml_analytics()
 
     def apply_sidebar_style(self):
         """Apply styling to sidebar"""
@@ -118,7 +123,8 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
                 self.usersButton,
                 self.categoriesButton,
                 self.vouchersButton,
-                self.reportsButton
+                self.reportsButton,
+                self.mlAnalyticsButton
             ]
 
             for i, btn in enumerate(buttons):
@@ -132,6 +138,20 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
     def add_content_page(self, widget):
         """Add a new page to content area"""
         self.contentStackedWidget.addWidget(widget)
+
+    def setup_ml_analytics(self):
+        """Setup ML Analytics widget"""
+        # Check if ML Analytics widget already exists
+        ml_analytics_exists = False
+        for i in range(self.contentStackedWidget.count()):
+            widget = self.contentStackedWidget.widget(i)
+            if isinstance(widget, AdminMLAnalyticsWidget):
+                ml_analytics_exists = True
+                break
+
+        if not ml_analytics_exists:
+            ml_analytics_widget = AdminMLAnalyticsWidget()
+            self.add_content_page(ml_analytics_widget)
 
     def handle_logout(self):
         """Handle logout"""

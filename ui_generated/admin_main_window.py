@@ -80,6 +80,10 @@ class Ui_AdminMainWindow(object):
         self.reportsButton.setMinimumHeight(45)
         self.sidebarLayout.addWidget(self.reportsButton)
 
+        self.mlAnalyticsButton = QtWidgets.QPushButton("🤖 ML Analytics")
+        self.mlAnalyticsButton.setMinimumHeight(45)
+        self.sidebarLayout.addWidget(self.mlAnalyticsButton)
+
         # Spacer
         spacerItem = QtWidgets.QSpacerItem(20, 40,
                                            QtWidgets.QSizePolicy.Policy.Minimum,
