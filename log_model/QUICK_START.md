@@ -54,7 +54,7 @@ scripts\restart.bat   # Khởi động lại
 
 ```bash
 # 1. Khởi động (3 giây)
-start.bat
+.\start.bat
 
 # 2. Làm việc với dự án
 #    - API: http://localhost:8000/docs
@@ -64,7 +64,7 @@ start.bat
 scripts\status.bat
 
 # 4. Dừng khi xong
-stop.bat
+.\stop.bat
 ```
 
 ### PowerShell shortcuts (nếu thích gõ ngắn):
