@@ -14,9 +14,25 @@ class Ui_MenuWidget(object):
 
         self.mainLayout = QtWidgets.QVBoxLayout(MenuWidget)
         self.mainLayout.setObjectName("mainLayout")
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(0)
+
+        # Main scroll area for entire page
+        self.mainScrollArea = QtWidgets.QScrollArea(MenuWidget)
+        self.mainScrollArea.setWidgetResizable(True)
+        self.mainScrollArea.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.mainScrollArea.setObjectName("mainScrollArea")
+
+        self.scrollContent = QtWidgets.QWidget()
+        self.scrollContent.setObjectName("scrollContent")
+
+        self.contentLayout = QtWidgets.QVBoxLayout(self.scrollContent)
+        self.contentLayout.setObjectName("contentLayout")
+        self.contentLayout.setContentsMargins(10, 10, 10, 10)
+        self.contentLayout.setSpacing(10)
 
         # Header
-        self.headerWidget = QtWidgets.QWidget(MenuWidget)
+        self.headerWidget = QtWidgets.QWidget(self.scrollContent)
         self.headerWidget.setObjectName("headerWidget")
 
         self.headerLayout = QtWidgets.QHBoxLayout(self.headerWidget)
@@ -43,15 +59,30 @@ class Ui_MenuWidget(object):
         self.searchLineEdit.setObjectName("searchLineEdit")
         self.headerLayout.addWidget(self.searchLineEdit)
 
-        self.mainLayout.addWidget(self.headerWidget)
+        self.contentLayout.addWidget(self.headerWidget)
 
         # Category tabs
-        self.categoryTabWidget = QtWidgets.QTabWidget(MenuWidget)
+        self.categoryTabWidget = QtWidgets.QTabWidget(self.scrollContent)
         self.categoryTabWidget.setObjectName("categoryTabWidget")
-        self.mainLayout.addWidget(self.categoryTabWidget)
+        self.categoryTabWidget.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+                top: 0px;
+                padding: 0px;
+            }
+            QTabWidget::tab-bar {
+                alignment: left;
+            }
+            QTabBar::tab {
+                padding: 8px 16px;
+                margin-right: 2px;
+            }
+        """)
+        self.categoryTabWidget.setDocumentMode(True)
+        self.contentLayout.addWidget(self.categoryTabWidget)
 
         # Filter widget
-        self.filterWidget = QtWidgets.QWidget(MenuWidget)
+        self.filterWidget = QtWidgets.QWidget(self.scrollContent)
         self.filterWidget.setMaximumHeight(50)
         self.filterWidget.setObjectName("filterWidget")
 
@@ -82,22 +113,63 @@ class Ui_MenuWidget(object):
                                             QtWidgets.QSizePolicy.Policy.Minimum)
         self.filterLayout.addItem(spacerItem2)
 
-        self.mainLayout.addWidget(self.filterWidget)
+        self.contentLayout.addWidget(self.filterWidget)
 
-        # Products scroll area
-        self.scrollArea = QtWidgets.QScrollArea(MenuWidget)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        # Products container widget
+        self.productsWidget = QtWidgets.QWidget(self.scrollContent)
+        self.productsWidget.setObjectName("productsWidget")
 
         # Grid layout for products
-        self.productsGridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.productsGridLayout = QtWidgets.QGridLayout(self.productsWidget)
         self.productsGridLayout.setObjectName("productsGridLayout")
 
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.mainLayout.addWidget(self.scrollArea)
+        self.contentLayout.addWidget(self.productsWidget)
+
+        # Pagination widget
+        self.paginationWidget = QtWidgets.QWidget(self.scrollContent)
+        self.paginationWidget.setMaximumHeight(60)
+        self.paginationWidget.setObjectName("paginationWidget")
+
+        self.paginationLayout = QtWidgets.QHBoxLayout(self.paginationWidget)
+        self.paginationLayout.setObjectName("paginationLayout")
+
+        # Add spacer
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
+        self.paginationLayout.addItem(spacerItem3)
+
+        # Previous button
+        self.prevButton = QtWidgets.QPushButton(self.paginationWidget)
+        self.prevButton.setObjectName("prevButton")
+        self.prevButton.setMinimumSize(80, 35)
+        self.paginationLayout.addWidget(self.prevButton)
+
+        # Page info label
+        self.pageInfoLabel = QtWidgets.QLabel(self.paginationWidget)
+        self.pageInfoLabel.setObjectName("pageInfoLabel")
+        self.pageInfoLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.pageInfoLabel.setMinimumWidth(150)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.pageInfoLabel.setFont(font)
+        self.paginationLayout.addWidget(self.pageInfoLabel)
+
+        # Next button
+        self.nextButton = QtWidgets.QPushButton(self.paginationWidget)
+        self.nextButton.setObjectName("nextButton")
+        self.nextButton.setMinimumSize(80, 35)
+        self.paginationLayout.addWidget(self.nextButton)
+
+        # Add spacer
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
+        self.paginationLayout.addItem(spacerItem4)
+
+        self.contentLayout.addWidget(self.paginationWidget)
+
+        # Set scroll content
+        self.mainScrollArea.setWidget(self.scrollContent)
+        self.mainLayout.addWidget(self.mainScrollArea)
 
         self.retranslateUi(MenuWidget)
         QtCore.QMetaObject.connectSlotsByName(MenuWidget)
@@ -111,3 +183,6 @@ class Ui_MenuWidget(object):
         self.hotCheckBox.setText(_translate("MenuWidget", "🔥 Nóng"))
         self.coldCheckBox.setText(_translate("MenuWidget", "❄️ Lạnh"))
         self.caffeineCheckBox.setText(_translate("MenuWidget", "☕ Không caffeine"))
+        self.prevButton.setText(_translate("MenuWidget", "← Trước"))
+        self.nextButton.setText(_translate("MenuWidget", "Sau →"))
+        self.pageInfoLabel.setText(_translate("MenuWidget", "Trang 1 / 1"))

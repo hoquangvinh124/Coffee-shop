@@ -24,6 +24,10 @@ class AdminLoginWidget(QWidget, Ui_AdminLoginWidget):
         self.usernameLineEdit.returnPressed.connect(self.handle_login)
         self.passwordLineEdit.returnPressed.connect(self.handle_login)
 
+        # Auto-fill admin credentials
+        self.usernameLineEdit.setText("admin")
+        self.passwordLineEdit.setText("admin123")
+
         # Focus on username field
         self.usernameLineEdit.setFocus()
 

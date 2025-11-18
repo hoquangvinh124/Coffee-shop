@@ -188,11 +188,19 @@ class MenuWidget(QWidget, Ui_MenuWidget):
         self.cart_controller = CartController()
         self.auth_controller = AuthController()
 
+        # Pagination variables
+        self.current_page = 1
+        self.items_per_page = 9  # 3x3 grid
+        self.total_pages = 1
+        self.all_products = []  # Store all products for pagination
+
         # Connect signals
         self.searchLineEdit.textChanged.connect(self.handle_search)
         self.hotCheckBox.stateChanged.connect(self.apply_filters)
         self.coldCheckBox.stateChanged.connect(self.apply_filters)
         self.caffeineCheckBox.stateChanged.connect(self.apply_filters)
+        self.prevButton.clicked.connect(self.prev_page)
+        self.nextButton.clicked.connect(self.next_page)
 
         # Load categories and products
         self.load_categories()
@@ -207,11 +215,13 @@ class MenuWidget(QWidget, Ui_MenuWidget):
 
         # Add "All" tab
         all_tab = QWidget()
+        all_tab.setMaximumHeight(0)  # Hide tab content area
         self.categoryTabWidget.addTab(all_tab, "Tất cả")
 
         # Add category tabs
         for category in categories:
             tab = QWidget()
+            tab.setMaximumHeight(0)  # Hide tab content area
             self.categoryTabWidget.addTab(tab, category['name'])
 
         # Connect tab change signal
@@ -220,10 +230,13 @@ class MenuWidget(QWidget, Ui_MenuWidget):
     def load_products(self, category_id=None):
         """Load and display products"""
         products = self.menu_controller.get_products_by_category(category_id)
-        self.display_products(products)
+        self.all_products = products
+        self.current_page = 1
+        self.update_pagination()
+        self.display_current_page()
 
     def display_products(self, products):
-        """Display products in grid layout"""
+        """Display products in grid layout (for internal use with pagination)"""
         # Clear existing products
         while self.productsGridLayout.count():
             item = self.productsGridLayout.takeAt(0)
@@ -251,6 +264,43 @@ class MenuWidget(QWidget, Ui_MenuWidget):
         # Add stretch to fill remaining space
         self.productsGridLayout.setRowStretch(row + 1, 1)
 
+    def update_pagination(self):
+        """Update pagination info"""
+        total_items = len(self.all_products)
+        self.total_pages = max(1, (total_items + self.items_per_page - 1) // self.items_per_page)
+        
+        # Update page info label
+        self.pageInfoLabel.setText(f"Trang {self.current_page} / {self.total_pages}")
+        
+        # Enable/disable buttons
+        self.prevButton.setEnabled(self.current_page > 1)
+        self.nextButton.setEnabled(self.current_page < self.total_pages)
+
+    def display_current_page(self):
+        """Display products for current page"""
+        start_idx = (self.current_page - 1) * self.items_per_page
+        end_idx = start_idx + self.items_per_page
+        page_products = self.all_products[start_idx:end_idx]
+        self.display_products(page_products)
+
+    def prev_page(self):
+        """Go to previous page"""
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.update_pagination()
+            self.display_current_page()
+            # Scroll to top of main scroll area
+            self.mainScrollArea.verticalScrollBar().setValue(0)
+
+    def next_page(self):
+        """Go to next page"""
+        if self.current_page < self.total_pages:
+            self.current_page += 1
+            self.update_pagination()
+            self.display_current_page()
+            # Scroll to top of main scroll area
+            self.mainScrollArea.verticalScrollBar().setValue(0)
+
     def handle_category_change(self, index):
         """Handle category tab change"""
         if index == 0:
@@ -273,7 +323,10 @@ class MenuWidget(QWidget, Ui_MenuWidget):
 
         # Search products
         products = self.menu_controller.search_products(query)
-        self.display_products(products)
+        self.all_products = products
+        self.current_page = 1
+        self.update_pagination()
+        self.display_current_page()
 
     def apply_filters(self):
         """Apply product filters"""
@@ -302,7 +355,10 @@ class MenuWidget(QWidget, Ui_MenuWidget):
             is_caffeine_free=is_caffeine_free
         )
 
-        self.display_products(products)
+        self.all_products = products
+        self.current_page = 1
+        self.update_pagination()
+        self.display_current_page()
 
     def handle_add_to_cart(self, product):
         """Handle add to cart button click - show detail dialog"""

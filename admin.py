@@ -162,8 +162,13 @@ class CoffeeShopAdminApp:
         # Reports (placeholder for now)
         reports_page = QWidget()
         reports_layout = QVBoxLayout(reports_page)
-        reports_layout.addWidget(QLabel("📈 Báo cáo - Đang phát triển"))
+        reports_layout.addWidget(QLabel("Báo cáo - Đang phát triển"))
         self.main_window.add_content_page(reports_page)
+
+        # ML Analytics - Revenue Forecasting
+        from views.admin_ml_analytics_ex import AdminMLAnalyticsWidget
+        ml_analytics_widget = AdminMLAnalyticsWidget()
+        self.main_window.add_content_page(ml_analytics_widget)
 
         # Store references
         self.dashboard_widget = dashboard_widget

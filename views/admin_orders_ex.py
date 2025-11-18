@@ -58,6 +58,18 @@ class OrderStatusDialog(QDialog):
 
         self.notesTextEdit = QTextEdit()
         self.notesTextEdit.setPlaceholderText("Nhập ghi chú về thay đổi trạng thái...")
+        self.notesTextEdit.setStyleSheet("""
+            QTextEdit {
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                background-color: white;
+                font-size: 13px;
+            }
+            QTextEdit:focus {
+                border: 2px solid #c7a17a;
+            }
+        """)
         layout.addWidget(self.notesTextEdit)
 
         # Buttons
@@ -176,15 +188,16 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
             action_layout.setSpacing(5)
 
             # View button
-            view_btn = QPushButton("👁️")
-            view_btn.setToolTip("Xem chi tiết")
+            view_btn = QPushButton("Chi tiết")
+            view_btn.setToolTip("Xem chi tiết đơn hàng")
             view_btn.setStyleSheet("""
                 QPushButton {
                     background-color: #2196F3;
                     color: white;
                     border: none;
-                    padding: 5px 10px;
-                    border-radius: 4px;
+                    padding: 6px 12px;
+                    border-radius: 3px;
+                    font-size: 12px;
                 }
                 QPushButton:hover {
                     background-color: #1976D2;
@@ -194,15 +207,16 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
             action_layout.addWidget(view_btn)
 
             # Update status button
-            update_btn = QPushButton("🔄")
-            update_btn.setToolTip("Cập nhật trạng thái")
+            update_btn = QPushButton("Cập nhật")
+            update_btn.setToolTip("Cập nhật trạng thái đơn hàng")
             update_btn.setStyleSheet("""
                 QPushButton {
                     background-color: #FF9800;
                     color: white;
                     border: none;
-                    padding: 5px 10px;
-                    border-radius: 4px;
+                    padding: 6px 12px;
+                    border-radius: 3px;
+                    font-size: 12px;
                 }
                 QPushButton:hover {
                     background-color: #F57C00;
@@ -212,6 +226,9 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
             action_layout.addWidget(update_btn)
 
             self.ordersTable.setCellWidget(row, 8, action_widget)
+
+            # Set row height to accommodate buttons
+            self.ordersTable.setRowHeight(row, 45)
 
         # Resize columns
         self.ordersTable.resizeColumnsToContents()

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox, QWidget, QLabel, QVBoxLayo
 from PyQt6.QtCore import pyqtSignal
 from ui_generated.admin_main_window import Ui_AdminMainWindow
 from controllers.admin_controller import AdminController
+from views.admin_ml_analytics_ex import AdminMLAnalyticsWidget
 
 
 class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
@@ -33,6 +34,7 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
         self.categoriesButton.clicked.connect(lambda: self.switch_page(4))
         self.vouchersButton.clicked.connect(lambda: self.switch_page(5))
         self.reportsButton.clicked.connect(lambda: self.switch_page(6))
+        self.mlAnalyticsButton.clicked.connect(lambda: self.switch_page(7))
         self.logoutButton.clicked.connect(self.handle_logout)
 
         # Load admin data
@@ -89,21 +91,14 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
 
             # Display role
             role = admin.get('role', 'staff')
-            role_icons = {
-                'super_admin': '👑',
-                'admin': '🔑',
-                'manager': '📋',
-                'staff': '👤'
-            }
             role_names = {
                 'super_admin': 'Super Admin',
                 'admin': 'Admin',
                 'manager': 'Manager',
                 'staff': 'Staff'
             }
-            icon = role_icons.get(role, '👤')
             name = role_names.get(role, 'Staff')
-            self.adminRoleLabel.setText(f"{icon} {name}")
+            self.adminRoleLabel.setText(name)
 
     def switch_page(self, index: int):
         """Switch to different page"""
@@ -118,7 +113,8 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
                 self.usersButton,
                 self.categoriesButton,
                 self.vouchersButton,
-                self.reportsButton
+                self.reportsButton,
+                self.mlAnalyticsButton
             ]
 
             for i, btn in enumerate(buttons):
