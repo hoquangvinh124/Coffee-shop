@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CartWidget</class>
+ <widget class="QWidget" name="CartWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Giỏ hàng</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QWidget" name="headerWidget" native="true">
+     <layout class="QHBoxLayout" name="headerLayout">
+      <item>
+       <widget class="QLabel" name="titleLabel">
+        <property name="text">
+         <string>🛒 Giỏ hàng của bạn</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearCartButton">
+        <property name="text">
+         <string>Xóa tất cả</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="contentWidget" native="true">
+     <layout class="QHBoxLayout" name="contentLayout">
+      <item>
+       <widget class="QScrollArea" name="cartScrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="cartScrollContents">
+         <layout class="QVBoxLayout" name="cartItemsLayout"/>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="summaryWidget" native="true">
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <layout class="QVBoxLayout" name="summaryLayout">
+         <item>
+          <widget class="QLabel" name="summaryTitleLabel">
+           <property name="text">
+            <string>Tóm tắt đơn hàng</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="voucherFrame">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QHBoxLayout" name="voucherLayout">
+            <item>
+             <widget class="QLineEdit" name="voucherLineEdit">
+              <property name="placeholderText">
+               <string>Nhập mã giảm giá</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="applyVoucherButton">
+              <property name="text">
+               <string>Áp dụng</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="subtotalLabel">
+           <property name="text">
+            <string>Tạm tính: 0đ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="discountLabel">
+           <property name="text">
+            <string>Giảm giá: 0đ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="deliveryFeeLabel">
+           <property name="text">
+            <string>Phí giao hàng: 0đ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="totalLabel">
+           <property name="text">
+            <string>Tổng: 0đ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="checkoutButton">
+           <property name="text">
+            <string>Thanh toán</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

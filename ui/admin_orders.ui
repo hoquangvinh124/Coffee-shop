@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AdminOrdersWidget</class>
+ <widget class="QWidget" name="AdminOrdersWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Quản lý đơn hàng</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="headerLayout">
+     <item>
+      <widget class="QLabel" name="headerLabel">
+       <property name="text">
+        <string>📦 Quản lý đơn hàng</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-size: 24px; font-weight: bold; color: #333;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
+        <string>🔄 Làm mới</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="filterLayout">
+     <item>
+      <widget class="QLabel" name="searchLabel">
+       <property name="text">
+        <string>Tìm kiếm:</string>
+       </property>
+       <property name="styleSheet">
+        <string>color: #333;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="searchLineEdit">
+       <property name="placeholderText">
+        <string>Mã đơn, tên khách hàng, email, SĐT...</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="statusLabel">
+       <property name="text">
+        <string>Trạng thái:</string>
+       </property>
+       <property name="styleSheet">
+        <string>color: #333;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="statusComboBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>Tất cả</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>⏳ Chờ xác nhận</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>✅ Đã xác nhận</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>👨‍🍳 Đang pha chế</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>📦 Sẵn sàng</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>🚚 Đang giao</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>✅ Hoàn thành</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>❌ Đã hủy</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="dateFromLabel">
+       <property name="text">
+        <string>Từ:</string>
+       </property>
+       <property name="styleSheet">
+        <string>color: #333;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="dateFromEdit">
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="dateToLabel">
+       <property name="text">
+        <string>Đến:</string>
+       </property>
+       <property name="styleSheet">
+        <string>color: #333;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="dateToEdit">
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="ordersTable">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="columnCount">
+      <number>9</number>
+     </property>
+     <column>
+      <property name="text">
+       <string>Mã đơn</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Khách hàng</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>SĐT</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Cửa hàng</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Loại</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Tổng tiền</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Trạng thái</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Ngày tạo</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Thao tác</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
