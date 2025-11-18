@@ -266,15 +266,13 @@ class AdminMLAnalyticsWidget(QWidget):
                 background-color: white;
                 border-left: 5px solid {color};
                 border-radius: 6px;
-                padding: 15px;
             }}
         """)
-        card.setMinimumHeight(100)
-        card.setMaximumHeight(130)
+        card.setMinimumHeight(110)
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        
+
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setContentsMargins(15, 15, 15, 15)
         layout.setSpacing(8)
 
         title_label = QLabel(title)
@@ -288,8 +286,9 @@ class AdminMLAnalyticsWidget(QWidget):
         value_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
         value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         value_label.setWordWrap(True)
+        value_label.setTextFormat(Qt.TextFormat.PlainText)
         layout.addWidget(value_label)
-        
+
         layout.addStretch()
 
         return card

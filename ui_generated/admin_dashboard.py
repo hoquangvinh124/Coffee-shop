@@ -76,20 +76,17 @@ class Ui_AdminDashboardWidget:
         """Create a stat card widget"""
         card = QFrame()
         card.setFrameShape(QFrame.Shape.StyledPanel)
-        card.setMinimumHeight(120)
-        card.setMinimumWidth(200)
-        card.setMaximumHeight(150)
+        card.setMinimumHeight(130)
         card.setStyleSheet("""
             QFrame {
                 background-color: white;
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
-                padding: 15px;
             }
         """)
 
         layout = QVBoxLayout(card)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
         layout.setContentsMargins(15, 15, 15, 15)
 
         # Title
@@ -97,7 +94,8 @@ class Ui_AdminDashboardWidget:
         title_label.setObjectName("titleLabel")
         title_label.setStyleSheet("font-size: 13px; color: #666; font-weight: normal;")
         title_label.setWordWrap(True)
-        title_label.setMinimumHeight(30)
+        title_label.setSizePolicy(QLabel().sizePolicy().horizontalPolicy(),
+                                   QLabel().sizePolicy().verticalPolicy())
         layout.addWidget(title_label)
 
         # Value
@@ -106,7 +104,9 @@ class Ui_AdminDashboardWidget:
         value_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #c7a17a;")
         value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         value_label.setWordWrap(True)
-        value_label.setMinimumHeight(40)
+        value_label.setTextFormat(Qt.TextFormat.PlainText)
+        value_label.setSizePolicy(QLabel().sizePolicy().horizontalPolicy(),
+                                   QLabel().sizePolicy().verticalPolicy())
         layout.addWidget(value_label)
 
         layout.addStretch()
