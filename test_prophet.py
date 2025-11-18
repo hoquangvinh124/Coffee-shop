@@ -19,7 +19,7 @@ print("="*70)
 
 # 1. Load data
 print("\n1. Loading data...")
-df = pd.read_csv('data/daily_sales_cafe.csv')
+df = pd.read_csv('revenue_forecasting/data/daily_sales_cafe.csv')
 df['ds'] = pd.to_datetime(df['ds'])
 print(f"   OK Loaded {len(df)} days of data")
 print(f"   Date range: {df['ds'].min()} to {df['ds'].max()}")
@@ -32,7 +32,7 @@ print(f"   OK Training data shape: {train_df.shape}")
 # 3. Load holidays (optional)
 print("\n3. Loading holidays...")
 try:
-    holidays = pd.read_csv('data/holidays_prepared.csv')
+    holidays = pd.read_csv('revenue_forecasting/data/holidays_prepared.csv')
     holidays['ds'] = pd.to_datetime(holidays['ds'])
     holidays_prophet = holidays[['ds', 'holiday']].copy()
     holidays_prophet['lower_window'] = -2
@@ -133,4 +133,4 @@ print(f"Total 8-Year Forecast: ${yearly_forecast['Total_M'].sum():.2f}M")
 print("\n" + "="*70)
 print("SUCCESS - TEST COMPLETED!")
 print("="*70)
-print("\nNext step: Open 'notebooks/prophet_forecasting.ipynb' in Jupyter to run the full analysis with visualizations.")
+print("\nNext step: Open 'revenue_forecasting/notebooks/prophet_forecasting.ipynb' in Jupyter to run the full analysis with visualizations.")
