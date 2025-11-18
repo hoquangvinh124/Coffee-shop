@@ -1,0 +1,57 @@
+FEATURE LIST - PROMOTIONAL RESPONSE PREDICTION
+================================================================================
+
+ORIGINAL FEATURES (9):
+--------------------------------------------------------------------------------
+ 1. recency
+ 2. history
+ 3. used_discount
+ 4. used_bogo
+ 5. zip_code
+ 6. is_referral
+ 7. channel
+ 8. offer
+ 9. conversion
+
+
+ENGINEERED FEATURES (27):
+--------------------------------------------------------------------------------
+ 1. recency_score
+ 2. monetary_score
+ 3. rfm_score
+ 4. customer_segment
+ 5. promo_engagement
+ 6. promo_variety
+ 7. is_inactive
+ 8. is_recent
+ 9. is_high_value
+10. is_low_value
+11. offer_channel
+12. referral_recent
+13. highvalue_discount
+14. highvalue_bogo
+15. location_channel
+16. engagement_discount_offer
+17. engagement_bogo_offer
+18. spending_per_day
+19. spending_category
+20. history_log
+21. channel_score
+22. is_digital
+23. discount_match
+24. bogo_match
+25. offer_mismatch
+26. is_urban
+27. is_rural
+
+
+FEATURE CATEGORIES:
+--------------------------------------------------------------------------------
+1. RFM Features: recency_score, monetary_score, rfm_score, customer_segment
+2. Behavioral: promo_engagement, promo_variety, is_inactive, is_recent
+3. Customer Value: is_high_value, is_low_value
+4. Interactions: offer_channel, referral_recent, highvalue_*, location_channel
+5. Spending: spending_per_day, spending_category, history_log
+6. Channel: channel_score, is_digital
+7. Offer Matching: discount_match, bogo_match, offer_mismatch
+8. Location: is_urban, is_rural

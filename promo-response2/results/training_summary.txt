@@ -1,0 +1,53 @@
+
+MODEL TRAINING SUMMARY - PROMOTIONAL RESPONSE PREDICTION
+========================================================
+
+DATASET:
+  Training samples: 87,370 (SMOTE-balanced)
+  Test samples: 12,800
+  Features: 31
+  
+MODELS TRAINED: 5
+  ✓ Logistic Regression
+  ✓ Random Forest
+  ✓ Gradient Boosting
+  ✓ LightGBM
+  ✓ CatBoost
+
+PERFORMANCE RESULTS:
+================================================================================
+                      ROC-AUC  Accuracy Precision    Recall  F1-Score
+Logistic Regression  0.653535  0.605625  0.212588  0.623736    0.3171
+CatBoost             0.635567  0.822031  0.261078  0.116019  0.160648
+Gradient Boosting      0.6343  0.817266  0.247807  0.120277  0.161949
+LightGBM             0.629988   0.81375  0.230523  0.114955  0.153409
+Random Forest        0.616194  0.760234  0.226814  0.262906   0.24353
+
+BEST MODEL:
+  🏆 Model: Logistic Regression
+  📊 ROC-AUC: 0.6535
+  🎯 Accuracy: 0.6056
+  🎯 Precision: 0.2126
+  🎯 Recall: 0.6237
+  🎯 F1-Score: 0.3171
+
+IMPROVEMENT vs BASELINE:
+  Baseline XGBoost: 0.6344
+  Current Best: 0.6535
+  Improvement: +1.91 percentage points
+  ✅ BETTER
+
+KEY INSIGHTS:
+
+SAVED ARTIFACTS:
+  ✓ All trained models saved to: E:\Nam3\TaiLieuHocKi6\ML\finalML\Coffee-shop\promo-response2\models
+  ✓ Best model: best_model.pkl
+  ✓ Performance comparison: model_comparison.csv
+  ✓ Feature importance: feature_importance.csv
+  ✓ Visualizations: 4 plots saved to E:\Nam3\TaiLieuHocKi6\ML\finalML\Coffee-shop\promo-response2\results
+
+NEXT STEPS:
+  1. Run 05_model_optimization.py for hyperparameter tuning
+  2. Run 06_business_strategy.py for targeting recommendations
+  3. Deploy best model to production environment
+  4. Set up A/B testing framework

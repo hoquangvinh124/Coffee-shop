@@ -1,0 +1,5 @@
+Model,Test ROC-AUC,CV ROC-AUC,Improvement
+LightGBM (Baseline),0.6299879062748729,N/A,
+LightGBM (Optimized),0.6438419148328269,nan,+1.39%
+CatBoost (Baseline),0.6355668234963775,N/A,
+CatBoost (Optimized),0.6122706257660915,nan,+-2.33%

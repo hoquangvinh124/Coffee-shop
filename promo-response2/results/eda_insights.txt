@@ -1,0 +1,52 @@
+
+PROMOTIONAL RESPONSE PREDICTION - EDA INSIGHTS
+===============================================
+
+Dataset: 64,000 customer records
+Target: Conversion (binary classification)
+Class Imbalance: 85.32% No / 14.68% Yes
+
+KEY FINDINGS:
+
+1. REFERRAL PROGRAM IMPACT ⭐
+   - Referred: 12.07% conversion
+   - Non-referred: 17.31% conversion
+   - Impact: +-5.23 percentage points
+   → ACTION: Prioritize referred customers in targeting
+
+2. OFFER EFFECTIVENESS
+   - Discount: 18.28%
+   - Buy One Get One: 15.14%
+   - No Offer: 10.62%
+   → ACTION: Focus budget on most effective offer types
+
+3. CHANNEL PERFORMANCE
+   - Multichannel: 17.17%
+   - Web: 15.94%
+   - Phone: 12.72%
+   → ACTION: Optimize channel mix based on conversion
+
+4. RECENCY MATTERS
+   - Best conversion: 1 days (19.30%)
+   - Pattern: Recent activity predicts higher conversion
+   → ACTION: Time campaigns for optimal recency window
+
+5. CUSTOMER VALUE
+   - High-value customers: 18.30% conversion
+   - Regular customers: 13.47% conversion
+   → ACTION: Different strategies for different segments
+
+FEATURE ENGINEERING RECOMMENDATIONS:
+
+✓ Create RFM (Recency-Frequency-Monetary) scores
+✓ Add interaction features (e.g., offer × channel)
+✓ Calculate customer lifetime value indicators
+✓ Create promotional affinity scores
+✓ Segment customers by behavior patterns
+
+MODEL RECOMMENDATIONS:
+
+✓ Use SMOTE to handle 5.8:1 class imbalance
+✓ Try LightGBM, CatBoost (handle categorical well)
+✓ Ensemble methods for robust predictions
+✓ Optimize for ROC-AUC and business metrics (ROI)
