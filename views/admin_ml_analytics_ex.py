@@ -156,8 +156,20 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def setup_ui(self):
         """Setup UI"""
-        # NO ScrollArea wrapping - direct VBoxLayout
-        main_layout = QVBoxLayout(self)
+        # Create main layout for this widget
+        widget_layout = QVBoxLayout(self)
+        widget_layout.setContentsMargins(0, 0, 0, 0)
+        widget_layout.setSpacing(0)
+
+        # Create scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        # Create content widget for scroll area
+        content_widget = QWidget()
+        main_layout = QVBoxLayout(content_widget)
         main_layout.setContentsMargins(15, 15, 15, 15)
         main_layout.setSpacing(15)
 
@@ -203,6 +215,10 @@ class AdminMLAnalyticsWidget(QWidget):
         # Add stretch to push everything up
         main_layout.addStretch()
 
+        # Set content widget to scroll area and add to main widget layout
+        scroll_area.setWidget(content_widget)
+        widget_layout.addWidget(scroll_area)
+
     def create_stats_panel(self):
         """Create stats panel"""
         group = QGroupBox("📈 Thống Kê Tổng Quan")
@@ -244,19 +260,23 @@ class AdminMLAnalyticsWidget(QWidget):
                 background-color: white;
                 border-left: 5px solid {color};
                 border-radius: 6px;
-                padding: 12px;
+                padding: 15px;
+                min-height: 80px;
             }}
         """)
         layout = QVBoxLayout(card)
-        layout.setSpacing(5)
+        layout.setContentsMargins(5, 8, 5, 8)
+        layout.setSpacing(8)
 
         title_label = QLabel(title)
         title_label.setStyleSheet(f"color: {color}; font-size: 10px; font-weight: bold;")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         layout.addWidget(title_label)
 
         value_label = QLabel(value)
         value_label.setObjectName("value")
         value_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(value_label)
 
         return card
@@ -557,11 +577,13 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def on_top_loaded(self, data, days):
         """Handle top stores loaded"""
-        self.top_chart.plot_bar_comparison(data, days, f"Top {len(data)} Cao Nhất ({days} ngày)")
+        stores = data.get('stores', [])
+        self.top_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Cao Nhất ({days} ngày)")
 
     def on_bottom_loaded(self, data, days):
         """Handle bottom stores loaded"""
-        self.bottom_chart.plot_bar_comparison(data, days, f"Top {len(data)} Thấp Nhất ({days} ngày)")
+        stores = data.get('stores', [])
+        self.bottom_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Thấp Nhất ({days} ngày)")
         self.comparison_analyze_btn.setEnabled(True)
         self.comparison_analyze_btn.setText("📊 Phân Tích")
 

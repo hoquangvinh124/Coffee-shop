@@ -25,14 +25,35 @@ class RevenuePredictor:
             # Try models/ folder as fallback
             self.models_dir = base_dir / 'models' / 'store_models'
             self.overall_model_path = base_dir / 'models' / 'revenue_prediction.pkl'
+            self.metadata_file = self.models_dir / 'stores_metadata.csv'
 
-        if not self.metadata_file.exists():
-            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
+        # Load metadata if available
+        self.metadata = None
+        if self.metadata_file.exists():
+            try:
+                self.metadata = pd.read_csv(self.metadata_file)
+            except Exception as e:
+                print(f"Warning: Could not load metadata: {e}")
+                self.metadata = None
 
-        # Load metadata
-        self.metadata = pd.read_csv(self.metadata_file)
         self.loaded_models = {}
         self.overall_model = None
+
+        # Get available stores from model files
+        self.available_stores = self._get_available_stores()
+
+    def _get_available_stores(self):
+        """Get list of available store numbers from model files"""
+        stores = []
+        if self.models_dir.exists():
+            for model_file in self.models_dir.glob('store_*_model.pkl'):
+                try:
+                    # Extract store number from filename like "store_44_model.pkl"
+                    store_nbr = int(model_file.stem.split('_')[1])
+                    stores.append(store_nbr)
+                except (ValueError, IndexError):
+                    continue
+        return sorted(stores)
 
     def load_overall_model(self):
         """Load overall system model"""
@@ -46,11 +67,16 @@ class RevenuePredictor:
         if store_nbr in self.loaded_models:
             return self.loaded_models[store_nbr]
 
-        store_data = self.metadata[self.metadata['store_nbr'] == store_nbr]
-        if len(store_data) == 0:
+        # Check if store exists
+        if store_nbr not in self.available_stores:
             raise ValueError(f"Store {store_nbr} not found")
 
-        model_file = store_data.iloc[0]['model_file']
+        # Construct model path directly from store number
+        model_file = self.models_dir / f'store_{store_nbr}_model.pkl'
+
+        if not model_file.exists():
+            raise FileNotFoundError(f"Model file not found: {model_file}")
+
         with open(model_file, 'rb') as f:
             model = pickle.load(f)
 
@@ -60,37 +86,75 @@ class RevenuePredictor:
     def get_all_stores(self):
         """Get all stores info"""
         stores = []
-        for _, row in self.metadata.iterrows():
-            stores.append({
-                'store_nbr': int(row['store_nbr']),
-                'city': row['city'],
-                'type': row['type'],
-                'state': row['state'],
-                'cluster': int(row['cluster']),
-                'historical_avg_daily': float(row['historical_avg_daily']),
-                'forecast_avg_daily': float(row['forecast_avg_daily']),
-                'growth_percent': float(row['growth_percent'])
-            })
+        # Check if metadata is valid (has required columns)
+        has_valid_metadata = (self.metadata is not None and
+                             'store_nbr' in self.metadata.columns)
+
+        if has_valid_metadata:
+            for _, row in self.metadata.iterrows():
+                stores.append({
+                    'store_nbr': int(row['store_nbr']),
+                    'city': row.get('city', 'Unknown'),
+                    'type': row.get('type', 'A'),
+                    'state': row.get('state', 'Unknown'),
+                    'cluster': int(row.get('cluster', 0)),
+                    'historical_avg_daily': float(row.get('historical_avg_daily', 0)),
+                    'forecast_avg_daily': float(row.get('forecast_avg_daily', 0)),
+                    'growth_percent': float(row.get('growth_percent', 0))
+                })
+        else:
+            # Generate basic store info from available stores
+            for store_nbr in self.available_stores:
+                stores.append({
+                    'store_nbr': store_nbr,
+                    'city': f'Store {store_nbr}',
+                    'type': 'A',
+                    'state': 'Unknown',
+                    'cluster': 0,
+                    'historical_avg_daily': 0.0,
+                    'forecast_avg_daily': 0.0,
+                    'growth_percent': 0.0
+                })
         return stores
 
     def get_store_info(self, store_nbr):
         """Get specific store info"""
-        store_data = self.metadata[self.metadata['store_nbr'] == store_nbr]
-        if len(store_data) == 0:
+        if store_nbr not in self.available_stores:
             raise ValueError(f"Store {store_nbr} not found")
 
-        row = store_data.iloc[0]
+        # Check if metadata is valid (has required columns)
+        has_valid_metadata = (self.metadata is not None and
+                             'store_nbr' in self.metadata.columns)
+
+        if has_valid_metadata:
+            store_data = self.metadata[self.metadata['store_nbr'] == store_nbr]
+            if len(store_data) > 0:
+                row = store_data.iloc[0]
+                return {
+                    'store_nbr': int(row['store_nbr']),
+                    'city': row.get('city', 'Unknown'),
+                    'type': row.get('type', 'A'),
+                    'state': row.get('state', 'Unknown'),
+                    'cluster': int(row.get('cluster', 0)),
+                    'historical_avg_daily': float(row.get('historical_avg_daily', 0)),
+                    'forecast_avg_daily': float(row.get('forecast_avg_daily', 0)),
+                    'growth_percent': float(row.get('growth_percent', 0)),
+                    'date_from': row.get('date_from', '2013-01-01'),
+                    'date_to': row.get('date_to', '2017-08-15')
+                }
+
+        # Return basic info if metadata not available
         return {
-            'store_nbr': int(row['store_nbr']),
-            'city': row['city'],
-            'type': row['type'],
-            'state': row['state'],
-            'cluster': int(row['cluster']),
-            'historical_avg_daily': float(row['historical_avg_daily']),
-            'forecast_avg_daily': float(row['forecast_avg_daily']),
-            'growth_percent': float(row['growth_percent']),
-            'date_from': row['date_from'],
-            'date_to': row['date_to']
+            'store_nbr': store_nbr,
+            'city': f'Store {store_nbr}',
+            'type': 'A',
+            'state': 'Unknown',
+            'cluster': 0,
+            'historical_avg_daily': 0.0,
+            'forecast_avg_daily': 0.0,
+            'growth_percent': 0.0,
+            'date_from': '2013-01-01',
+            'date_to': '2017-08-15'
         }
 
     def predict_overall(self, days):
@@ -170,33 +234,67 @@ class RevenuePredictor:
 
     def get_top_stores(self, n=10):
         """Get top N stores by forecast revenue"""
-        stores = self.metadata.sort_values('forecast_avg_daily', ascending=False).head(n)
         result = []
-        for _, row in stores.iterrows():
-            result.append({
-                'store_nbr': int(row['store_nbr']),
-                'city': row['city'],
-                'type': row['type'],
-                'forecast_avg_daily': float(row['forecast_avg_daily']),
-                'historical_avg_daily': float(row['historical_avg_daily']),
-                'growth_percent': float(row['growth_percent'])
-            })
-        return result
+        # Check if metadata is valid (has required columns)
+        has_valid_metadata = (self.metadata is not None and
+                             'store_nbr' in self.metadata.columns and
+                             'forecast_avg_daily' in self.metadata.columns)
+
+        if has_valid_metadata:
+            stores = self.metadata.sort_values('forecast_avg_daily', ascending=False).head(n)
+            for _, row in stores.iterrows():
+                result.append({
+                    'store_nbr': int(row['store_nbr']),
+                    'city': row.get('city', 'Unknown'),
+                    'type': row.get('type', 'A'),
+                    'forecast_avg_daily': float(row.get('forecast_avg_daily', 0)),
+                    'historical_avg_daily': float(row.get('historical_avg_daily', 0)),
+                    'growth_percent': float(row.get('growth_percent', 0))
+                })
+        else:
+            # Return first N stores if no metadata
+            for store_nbr in self.available_stores[:n]:
+                result.append({
+                    'store_nbr': store_nbr,
+                    'city': f'Store {store_nbr}',
+                    'type': 'A',
+                    'forecast_avg_daily': 0.0,
+                    'historical_avg_daily': 0.0,
+                    'growth_percent': 0.0
+                })
+        return {'stores': result}
 
     def get_bottom_stores(self, n=10):
         """Get bottom N stores by forecast revenue"""
-        stores = self.metadata.sort_values('forecast_avg_daily', ascending=True).head(n)
         result = []
-        for _, row in stores.iterrows():
-            result.append({
-                'store_nbr': int(row['store_nbr']),
-                'city': row['city'],
-                'type': row['type'],
-                'forecast_avg_daily': float(row['forecast_avg_daily']),
-                'historical_avg_daily': float(row['historical_avg_daily']),
-                'growth_percent': float(row['growth_percent'])
-            })
-        return result
+        # Check if metadata is valid (has required columns)
+        has_valid_metadata = (self.metadata is not None and
+                             'store_nbr' in self.metadata.columns and
+                             'forecast_avg_daily' in self.metadata.columns)
+
+        if has_valid_metadata:
+            stores = self.metadata.sort_values('forecast_avg_daily', ascending=True).head(n)
+            for _, row in stores.iterrows():
+                result.append({
+                    'store_nbr': int(row['store_nbr']),
+                    'city': row.get('city', 'Unknown'),
+                    'type': row.get('type', 'A'),
+                    'forecast_avg_daily': float(row.get('forecast_avg_daily', 0)),
+                    'historical_avg_daily': float(row.get('historical_avg_daily', 0)),
+                    'growth_percent': float(row.get('growth_percent', 0))
+                })
+        else:
+            # Return last N stores if no metadata
+            for store_nbr in self.available_stores[-n:]:
+                result.append({
+                    'store_nbr': store_nbr,
+                    'city': f'Store {store_nbr}',
+                    'type': 'A',
+                    'forecast_avg_daily': 0.0,
+                    'historical_avg_daily': 0.0,
+                    'growth_percent': 0.0
+                })
+        return {'stores': result}
 
 
 # Global instance
