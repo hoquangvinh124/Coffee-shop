@@ -18,7 +18,7 @@ class Ui_AdminDashboardWidget:
         main_layout.setSpacing(20)
 
         # Header
-        header_label = QLabel("📊 Dashboard")
+        header_label = QLabel("Dashboard")
         header_label.setObjectName("headerLabel")
         header_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #333;")
         main_layout.addWidget(header_label)
@@ -55,7 +55,7 @@ class Ui_AdminDashboardWidget:
         main_layout.addLayout(stats_grid)
 
         # Recent orders section
-        recent_orders_label = QLabel("📦 Đơn hàng gần đây")
+        recent_orders_label = QLabel("Đơn hàng gần đây")
         recent_orders_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #333; margin-top: 10px;")
         main_layout.addWidget(recent_orders_label)
 
@@ -76,27 +76,40 @@ class Ui_AdminDashboardWidget:
         """Create a stat card widget"""
         card = QFrame()
         card.setFrameShape(QFrame.Shape.StyledPanel)
+        card.setMinimumHeight(120)
+        card.setMinimumWidth(200)
+        card.setMaximumHeight(150)
         card.setStyleSheet("""
             QFrame {
                 background-color: white;
+                border: 1px solid #e0e0e0;
                 border-radius: 8px;
                 padding: 15px;
             }
         """)
 
         layout = QVBoxLayout(card)
-
-        # Icon and value
-        value_label = QLabel("0")
-        value_label.setObjectName("valueLabel")
-        value_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #c7a17a;")
-        layout.addWidget(value_label)
+        layout.setSpacing(10)
+        layout.setContentsMargins(15, 15, 15, 15)
 
         # Title
         title_label = QLabel("Title")
         title_label.setObjectName("titleLabel")
-        title_label.setStyleSheet("font-size: 14px; color: #666;")
+        title_label.setStyleSheet("font-size: 13px; color: #666; font-weight: normal;")
+        title_label.setWordWrap(True)
+        title_label.setMinimumHeight(30)
         layout.addWidget(title_label)
+
+        # Value
+        value_label = QLabel("0")
+        value_label.setObjectName("valueLabel")
+        value_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #c7a17a;")
+        value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        value_label.setWordWrap(True)
+        value_label.setMinimumHeight(40)
+        layout.addWidget(value_label)
+
+        layout.addStretch()
 
         card.valueLabel = value_label
         card.titleLabel = title_label

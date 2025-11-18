@@ -26,31 +26,33 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
     def load_stats(self):
         """Load and display statistics"""
         stats = self.admin_controller.get_dashboard_stats()
+        
+        print(f"Dashboard stats: {stats}")  # Debug output
 
         # Update stat cards
         self.totalRevenueCard.valueLabel.setText(format_currency(stats.get('total_revenue', 0)))
-        self.totalRevenueCard.titleLabel.setText("💰 Tổng doanh thu")
+        self.totalRevenueCard.titleLabel.setText("Tổng doanh thu")
 
         self.todayRevenueCard.valueLabel.setText(format_currency(stats.get('today_revenue', 0)))
-        self.todayRevenueCard.titleLabel.setText("💵 Doanh thu hôm nay")
+        self.todayRevenueCard.titleLabel.setText("Doanh thu hôm nay")
 
         self.monthRevenueCard.valueLabel.setText(format_currency(stats.get('month_revenue', 0)))
-        self.monthRevenueCard.titleLabel.setText("📊 Doanh thu tháng này")
+        self.monthRevenueCard.titleLabel.setText("Doanh thu tháng này")
 
         self.totalOrdersCard.valueLabel.setText(str(stats.get('total_orders', 0)))
-        self.totalOrdersCard.titleLabel.setText("📦 Tổng đơn hàng")
+        self.totalOrdersCard.titleLabel.setText("Tổng đơn hàng")
 
         self.todayOrdersCard.valueLabel.setText(str(stats.get('today_orders', 0)))
-        self.todayOrdersCard.titleLabel.setText("🛍️ Đơn hàng hôm nay")
+        self.todayOrdersCard.titleLabel.setText("Đơn hàng hôm nay")
 
         self.pendingOrdersCard.valueLabel.setText(str(stats.get('pending_orders', 0)))
-        self.pendingOrdersCard.titleLabel.setText("⏳ Đơn chờ xác nhận")
+        self.pendingOrdersCard.titleLabel.setText("Đơn chờ xác nhận")
 
         self.totalCustomersCard.valueLabel.setText(str(stats.get('total_customers', 0)))
-        self.totalCustomersCard.titleLabel.setText("👥 Tổng khách hàng")
+        self.totalCustomersCard.titleLabel.setText("Tổng khách hàng")
 
         self.totalProductsCard.valueLabel.setText(str(stats.get('total_products', 0)))
-        self.totalProductsCard.titleLabel.setText("☕ Tổng sản phẩm")
+        self.totalProductsCard.titleLabel.setText("Tổng sản phẩm")
 
     def load_recent_orders(self):
         """Load and display recent orders"""
@@ -93,7 +95,7 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
 
-            view_btn = QPushButton("👁️ Xem")
+            view_btn = QPushButton("Xem")
             view_btn.setStyleSheet("""
                 QPushButton {
                     background-color: #4CAF50;
@@ -117,13 +119,13 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
     def get_status_text(self, status):
         """Get Vietnamese status text"""
         status_map = {
-            'pending': '⏳ Chờ xác nhận',
-            'confirmed': '✅ Đã xác nhận',
-            'preparing': '👨‍🍳 Đang pha chế',
-            'ready': '📦 Sẵn sàng',
-            'delivering': '🚚 Đang giao',
-            'completed': '✅ Hoàn thành',
-            'cancelled': '❌ Đã hủy'
+            'pending': 'Chờ xác nhận',
+            'confirmed': 'Đã xác nhận',
+            'preparing': 'Đang pha chế',
+            'ready': 'Sẵn sàng',
+            'delivering': 'Đang giao',
+            'completed': 'Hoàn thành',
+            'cancelled': 'Đã hủy'
         }
         return status_map.get(status, status)
 

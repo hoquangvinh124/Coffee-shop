@@ -20,6 +20,18 @@ class CategoryDialog(QDialog):
         
         self.desc_edit = QTextEdit()
         self.desc_edit.setMaximumHeight(80)
+        self.desc_edit.setStyleSheet("""
+            QTextEdit {
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                background-color: white;
+                font-size: 13px;
+            }
+            QTextEdit:focus {
+                border: 2px solid #c7a17a;
+            }
+        """)
         layout.addRow("Mô tả:", self.desc_edit)
         
         self.icon_edit = QLineEdit()
@@ -100,20 +112,30 @@ class AdminCategoriesWidget(QWidget):
             action_widget = QWidget()
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
+            action_layout.setSpacing(5)
 
-            edit_btn = QPushButton("✏️")
+            edit_btn = QPushButton("Sửa")
+            edit_btn.setToolTip("Sửa danh mục")
+            edit_btn.setStyleSheet("background-color: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             edit_btn.clicked.connect(lambda checked, c=cat: self.handle_edit(c))
             action_layout.addWidget(edit_btn)
 
-            toggle_btn = QPushButton("👁️" if cat['is_active'] else "🚫")
+            toggle_btn = QPushButton("Ẩn" if cat['is_active'] else "Hiện")
+            toggle_btn.setToolTip("Ẩn/Hiện danh mục")
+            toggle_btn.setStyleSheet("background-color: #FF9800; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             toggle_btn.clicked.connect(lambda checked, c=cat: self.handle_toggle(c))
             action_layout.addWidget(toggle_btn)
 
-            delete_btn = QPushButton("🗑️")
+            delete_btn = QPushButton("Xóa")
+            delete_btn.setToolTip("Xóa danh mục")
+            delete_btn.setStyleSheet("background-color: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             delete_btn.clicked.connect(lambda checked, c=cat: self.handle_delete(c))
             action_layout.addWidget(delete_btn)
 
             self.table.setCellWidget(row, 5, action_widget)
+
+            # Set row height to accommodate buttons
+            self.table.setRowHeight(row, 45)
 
         self.table.resizeColumnsToContents()
 

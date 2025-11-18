@@ -57,6 +57,18 @@ class ProductDialog(QDialog):
         self.description_edit = QTextEdit()
         self.description_edit.setPlaceholderText("Mô tả sản phẩm...")
         self.description_edit.setMaximumHeight(100)
+        self.description_edit.setStyleSheet("""
+            QTextEdit {
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                background-color: white;
+                font-size: 13px;
+            }
+            QTextEdit:focus {
+                border: 2px solid #c7a17a;
+            }
+        """)
         form_layout.addRow("Mô tả:", self.description_edit)
 
         # Image upload
@@ -496,27 +508,30 @@ class AdminProductsWidget(QWidget):
             action_layout.setSpacing(5)
 
             # Edit button
-            edit_btn = QPushButton("✏️")
-            edit_btn.setToolTip("Sửa")
-            edit_btn.setStyleSheet("background-color: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px;")
+            edit_btn = QPushButton("Sửa")
+            edit_btn.setToolTip("Sửa sản phẩm")
+            edit_btn.setStyleSheet("background-color: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             edit_btn.clicked.connect(lambda checked, p=product: self.handle_edit_product(p))
             action_layout.addWidget(edit_btn)
 
             # Toggle button
-            toggle_btn = QPushButton("👁️" if product['is_available'] else "🚫")
-            toggle_btn.setToolTip("Ẩn/Hiện")
-            toggle_btn.setStyleSheet("background-color: #FF9800; color: white; border: none; padding: 5px 10px; border-radius: 4px;")
+            toggle_btn = QPushButton("Ẩn" if product['is_available'] else "Hiện")
+            toggle_btn.setToolTip("Ẩn/Hiện sản phẩm")
+            toggle_btn.setStyleSheet("background-color: #FF9800; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             toggle_btn.clicked.connect(lambda checked, p=product: self.handle_toggle_product(p))
             action_layout.addWidget(toggle_btn)
 
             # Delete button
-            delete_btn = QPushButton("🗑️")
-            delete_btn.setToolTip("Xóa")
-            delete_btn.setStyleSheet("background-color: #F44336; color: white; border: none; padding: 5px 10px; border-radius: 4px;")
+            delete_btn = QPushButton("Xóa")
+            delete_btn.setToolTip("Xóa sản phẩm")
+            delete_btn.setStyleSheet("background-color: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             delete_btn.clicked.connect(lambda checked, p=product: self.handle_delete_product(p))
             action_layout.addWidget(delete_btn)
 
             self.products_table.setCellWidget(row, 7, action_widget)
+
+            # Set row height to accommodate buttons
+            self.products_table.setRowHeight(row, 45)
 
         self.products_table.resizeColumnsToContents()
 

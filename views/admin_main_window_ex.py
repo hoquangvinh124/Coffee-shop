@@ -40,9 +40,6 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
         # Load admin data
         self.load_admin_info()
 
-        # Initialize ML Analytics widget
-        self.setup_ml_analytics()
-
     def apply_sidebar_style(self):
         """Apply styling to sidebar"""
         self.sidebarWidget.setStyleSheet("""
@@ -94,21 +91,14 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
 
             # Display role
             role = admin.get('role', 'staff')
-            role_icons = {
-                'super_admin': '👑',
-                'admin': '🔑',
-                'manager': '📋',
-                'staff': '👤'
-            }
             role_names = {
                 'super_admin': 'Super Admin',
                 'admin': 'Admin',
                 'manager': 'Manager',
                 'staff': 'Staff'
             }
-            icon = role_icons.get(role, '👤')
             name = role_names.get(role, 'Staff')
-            self.adminRoleLabel.setText(f"{icon} {name}")
+            self.adminRoleLabel.setText(name)
 
     def switch_page(self, index: int):
         """Switch to different page"""
@@ -138,20 +128,6 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
     def add_content_page(self, widget):
         """Add a new page to content area"""
         self.contentStackedWidget.addWidget(widget)
-
-    def setup_ml_analytics(self):
-        """Setup ML Analytics widget"""
-        # Check if ML Analytics widget already exists
-        ml_analytics_exists = False
-        for i in range(self.contentStackedWidget.count()):
-            widget = self.contentStackedWidget.widget(i)
-            if isinstance(widget, AdminMLAnalyticsWidget):
-                ml_analytics_exists = True
-                break
-
-        if not ml_analytics_exists:
-            ml_analytics_widget = AdminMLAnalyticsWidget()
-            self.add_content_page(ml_analytics_widget)
 
     def handle_logout(self):
         """Handle logout"""

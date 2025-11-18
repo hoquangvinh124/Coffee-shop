@@ -164,17 +164,19 @@ class AdminMLAnalyticsWidget(QWidget):
         # Create scroll area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         # Create content widget for scroll area
         content_widget = QWidget()
         main_layout = QVBoxLayout(content_widget)
-        main_layout.setContentsMargins(15, 15, 15, 15)
-        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
 
         # Title
-        title_label = QLabel("📊 Dự Báo Doanh Thu")
+        title_label = QLabel("Dự Báo Doanh Thu")
         title_label.setStyleSheet("""
             QLabel {
                 font-size: 24px;
@@ -221,7 +223,7 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def create_stats_panel(self):
         """Create stats panel"""
-        group = QGroupBox("📈 Thống Kê Tổng Quan")
+        group = QGroupBox("Thống Kê Tổng Quan")
         group.setStyleSheet("""
             QGroupBox {
                 font-weight: bold;
@@ -237,8 +239,12 @@ class AdminMLAnalyticsWidget(QWidget):
                 padding: 0 5px;
             }
         """)
+        group.setMinimumHeight(150)
+        group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
         layout = QHBoxLayout(group)
+        layout.setContentsMargins(10, 25, 10, 10)
+        layout.setSpacing(15)
 
         self.stat1 = self.create_stat_card("Tổng TB/ngày", "--", "#2196F3")
         self.stat2 = self.create_stat_card("Tổng dự báo", "--", "#4CAF50")
@@ -261,23 +267,30 @@ class AdminMLAnalyticsWidget(QWidget):
                 border-left: 5px solid {color};
                 border-radius: 6px;
                 padding: 15px;
-                min-height: 80px;
             }}
         """)
+        card.setMinimumHeight(100)
+        card.setMaximumHeight(130)
+        card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(5, 8, 5, 8)
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(8)
 
         title_label = QLabel(title)
-        title_label.setStyleSheet(f"color: {color}; font-size: 10px; font-weight: bold;")
+        title_label.setStyleSheet(f"color: {color}; font-size: 12px; font-weight: bold;")
         title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        title_label.setWordWrap(True)
         layout.addWidget(title_label)
 
         value_label = QLabel(value)
         value_label.setObjectName("value")
-        value_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        value_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
         value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        value_label.setWordWrap(True)
         layout.addWidget(value_label)
+        
+        layout.addStretch()
 
         return card
 
@@ -340,7 +353,7 @@ class AdminMLAnalyticsWidget(QWidget):
         )
 
         # Analyze button
-        analyze_btn = QPushButton("📊 Phân Tích")
+        analyze_btn = QPushButton("Phân Tích")
         analyze_btn.setStyleSheet("""
             QPushButton {
                 background-color: #c7a17a;
@@ -370,7 +383,7 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def create_comparison_section(self):
         """Create comparison section with shared controls"""
-        section = QGroupBox("📊 So Sánh Cửa Hàng")
+        section = QGroupBox("So Sánh Cửa Hàng")
         section.setStyleSheet("""
             QGroupBox {
                 font-weight: bold;
@@ -404,7 +417,7 @@ class AdminMLAnalyticsWidget(QWidget):
         self.comparison_period.setCurrentIndex(1)
         controls_layout.addWidget(self.comparison_period)
 
-        self.comparison_analyze_btn = QPushButton("📊 Phân Tích")
+        self.comparison_analyze_btn = QPushButton("Phân Tích")
         self.comparison_analyze_btn.setStyleSheet("""
             QPushButton {
                 background-color: #c7a17a;
@@ -461,7 +474,10 @@ class AdminMLAnalyticsWidget(QWidget):
         """Update stat card"""
         value_label = card.findChild(QLabel, "value")
         if value_label:
-            value_label.setText(value)
+            # Clean the value string to ensure proper display
+            clean_value = str(value).replace(',', '.')
+            value_label.setText(clean_value)
+            value_label.update()  # Force update
 
     def load_stores(self):
         """Load stores list"""
@@ -510,7 +526,7 @@ class AdminMLAnalyticsWidget(QWidget):
             if not store_nbr:
                 QMessageBox.warning(self, "Lỗi", "Vui lòng chọn cửa hàng!")
                 analyze_btn.setEnabled(True)
-                analyze_btn.setText("📊 Phân Tích")
+                analyze_btn.setText("Phân Tích")
                 return
             worker = PredictionWorker(self.predictor, 'store', store_nbr=store_nbr, days=days)
             worker.finished.connect(lambda data: self.on_store_loaded(data, chart_name))
@@ -528,11 +544,15 @@ class AdminMLAnalyticsWidget(QWidget):
         avg = summary.get('avg_daily_forecast', 0)
         total = summary.get('total_forecast', 0)
 
-        self.update_stat_card(self.stat1, f"{avg:,.0f} VNĐ")
-        self.update_stat_card(self.stat2, f"{total:,.0f} VNĐ")
+        # Format with dots as thousands separator
+        avg_text = f"{int(avg):,} VNĐ".replace(',', '.')
+        total_text = f"{int(total):,} VNĐ".replace(',', '.')
+        
+        self.update_stat_card(self.stat1, avg_text)
+        self.update_stat_card(self.stat2, total_text)
 
         self.overall_analyze_btn.setEnabled(True)
-        self.overall_analyze_btn.setText("📊 Phân Tích")
+        self.overall_analyze_btn.setText("Phân Tích")
 
     def on_store_loaded(self, data, chart_name):
         """Handle store loaded"""
@@ -544,17 +564,21 @@ class AdminMLAnalyticsWidget(QWidget):
         store_avg = data.get('forecast_avg_daily', 0)
         growth = data.get('growth_percent', 0)
 
-        self.update_stat_card(self.stat3, f"{store_avg:,.0f} VNĐ")
-        self.update_stat_card(self.stat4, f"{growth:+.1f}%")
+        # Format numbers properly
+        store_avg_text = f"{int(store_avg):,} VNĐ".replace(',', '.')
+        growth_text = f"{growth:+.1f}%"
+        
+        self.update_stat_card(self.stat3, store_avg_text)
+        self.update_stat_card(self.stat4, growth_text)
 
         analyze_btn = getattr(self, f'{chart_name}_analyze_btn')
         analyze_btn.setEnabled(True)
-        analyze_btn.setText("📊 Phân Tích")
+        analyze_btn.setText("Phân Tích")
 
     def analyze_comparison(self):
         """Analyze comparison"""
         self.comparison_analyze_btn.setEnabled(False)
-        self.comparison_analyze_btn.setText("⏳ Đang phân tích...")
+        self.comparison_analyze_btn.setText("Đang phân tích...")
 
         n = self.comparison_topn.value()
         period_idx = self.comparison_period.currentIndex()
@@ -585,16 +609,16 @@ class AdminMLAnalyticsWidget(QWidget):
         stores = data.get('stores', [])
         self.bottom_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Thấp Nhất ({days} ngày)")
         self.comparison_analyze_btn.setEnabled(True)
-        self.comparison_analyze_btn.setText("📊 Phân Tích")
+        self.comparison_analyze_btn.setText("Phân Tích")
 
     def on_error(self, error_msg, chart_name):
         """Handle error"""
         if chart_name == 'comparison':
             self.comparison_analyze_btn.setEnabled(True)
-            self.comparison_analyze_btn.setText("📊 Phân Tích")
+            self.comparison_analyze_btn.setText("Phân Tích")
         else:
             analyze_btn = getattr(self, f'{chart_name}_analyze_btn')
             analyze_btn.setEnabled(True)
-            analyze_btn.setText("📊 Phân Tích")
+            analyze_btn.setText("Phân Tích")
 
         QMessageBox.critical(self, "Lỗi", f"Không thể thực hiện dự đoán:\n{error_msg}")

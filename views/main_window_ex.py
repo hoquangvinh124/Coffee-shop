@@ -57,13 +57,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             # Display membership tier
             tier = user_data.get('membership_tier', 'Bronze')
-            tier_icons = {
-                'Bronze': '🥉',
-                'Silver': '🥈',
-                'Gold': '🥇'
-            }
-            icon = tier_icons.get(tier, '🥉')
-            self.userTierLabel.setText(f"{icon} {tier} Member")
+            self.userTierLabel.setText(f"{tier} Member")
 
             # Display points
             points = user_data.get('loyalty_points', 0)
@@ -74,7 +68,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         user_id = self.auth_controller.get_current_user_id()
         if user_id:
             count = self.cart_controller.get_cart_count(user_id)
-            self.cartButton.setText(f"🛒 Giỏ hàng ({count})")
+            self.cartButton.setText(f"Giỏ hàng ({count})")
 
     def switch_page(self, index: int):
         """Switch to different page in stacked widget"""

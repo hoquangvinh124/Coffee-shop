@@ -83,18 +83,24 @@ class AdminUsersWidget(QWidget):
             action_widget = QWidget()
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
+            action_layout.setSpacing(5)
 
-            tier_btn = QPushButton("🏆")
-            tier_btn.setToolTip("Đổi tier")
+            tier_btn = QPushButton("Tier")
+            tier_btn.setToolTip("Đổi tier khách hàng")
+            tier_btn.setStyleSheet("background-color: #FF9800; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             tier_btn.clicked.connect(lambda checked, u=user: self.change_tier(u))
             action_layout.addWidget(tier_btn)
 
-            points_btn = QPushButton("💰")
-            points_btn.setToolTip("Điểm")
+            points_btn = QPushButton("Điểm")
+            points_btn.setToolTip("Điều chỉnh điểm tích lũy")
+            points_btn.setStyleSheet("background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             points_btn.clicked.connect(lambda checked, u=user: self.adjust_points(u))
             action_layout.addWidget(points_btn)
 
             self.table.setCellWidget(row, 7, action_widget)
+
+            # Set row height to accommodate buttons
+            self.table.setRowHeight(row, 45)
 
         self.table.resizeColumnsToContents()
 
