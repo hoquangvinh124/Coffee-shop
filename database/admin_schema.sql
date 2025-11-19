@@ -1,5 +1,8 @@
 -- Admin Schema
--- Additional tables for admin functionality
+-- Version: 2.0 - Refactored
+-- Date: 2025-11-19
+-- Changes:
+--   - Removed admin_activity_log table (not needed)
 
 -- Admin Users Table (separate from customer users for security)
 CREATE TABLE IF NOT EXISTS admin_users (
@@ -15,23 +18,6 @@ CREATE TABLE IF NOT EXISTS admin_users (
     last_login TIMESTAMP NULL,
     INDEX idx_username (username),
     INDEX idx_email (email)
-) ENGINE=InnoDB;
-
--- Admin Activity Log
-CREATE TABLE IF NOT EXISTS admin_activity_log (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admin_id INT NOT NULL,
-    action VARCHAR(100) NOT NULL,
-    table_name VARCHAR(100),
-    record_id INT,
-    old_value JSON,
-    new_value JSON,
-    ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (admin_id) REFERENCES admin_users(id) ON DELETE CASCADE,
-    INDEX idx_admin_id (admin_id),
-    INDEX idx_action (action),
-    INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB;
 
 -- Insert default admin account (password: admin123)

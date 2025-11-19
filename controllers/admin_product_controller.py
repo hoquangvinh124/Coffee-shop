@@ -69,7 +69,7 @@ class AdminProductController:
             # Insert product
             product_id = db.insert(
                 """INSERT INTO products
-                   (name, category_id, description, base_price, image_url,
+                   (name, category_id, description, base_price, image,
                     is_hot, is_cold, is_seasonal, is_new, is_bestseller,
                     is_available, ingredients, calories_small, calories_medium,
                     calories_large, created_at, updated_at)
@@ -79,7 +79,7 @@ class AdminProductController:
                     data['category_id'],
                     data.get('description', ''),
                     data['base_price'],
-                    data.get('image_url', ''),
+                    data.get('image', ''),
                     data.get('is_hot', True),
                     data.get('is_cold', True),
                     data.get('is_seasonal', False),
@@ -92,12 +92,6 @@ class AdminProductController:
                     data.get('calories_large', 0)
                 )
             )
-
-            # Log activity
-            from controllers.admin_controller import AdminController
-            admin_controller = AdminController()
-            admin_controller.log_activity(admin_id, 'create_product', 'products', product_id,
-                                         None, {'name': data['name']})
 
             return True, f"Tạo sản phẩm thành công (ID: {product_id})"
 
@@ -117,7 +111,7 @@ class AdminProductController:
             db.execute_query(
                 """UPDATE products SET
                    name = %s, category_id = %s, description = %s, base_price = %s,
-                   image_url = %s, is_hot = %s, is_cold = %s, is_seasonal = %s,
+                   image = %s, is_hot = %s, is_cold = %s, is_seasonal = %s,
                    is_new = %s, is_bestseller = %s, is_available = %s,
                    ingredients = %s, calories_small = %s, calories_medium = %s,
                    calories_large = %s, updated_at = NOW()
@@ -127,7 +121,7 @@ class AdminProductController:
                     data['category_id'],
                     data.get('description', ''),
                     data['base_price'],
-                    data.get('image_url', ''),
+                    data.get('image', ''),
                     data.get('is_hot', True),
                     data.get('is_cold', True),
                     data.get('is_seasonal', False),
@@ -141,13 +135,6 @@ class AdminProductController:
                     product_id
                 )
             )
-
-            # Log activity
-            from controllers.admin_controller import AdminController
-            admin_controller = AdminController()
-            admin_controller.log_activity(admin_id, 'update_product', 'products', product_id,
-                                         {'name': old_product['name']},
-                                         {'name': data['name']})
 
             return True, "Cập nhật sản phẩm thành công"
 
@@ -169,12 +156,6 @@ class AdminProductController:
                 (product_id,)
             )
 
-            # Log activity
-            from controllers.admin_controller import AdminController
-            admin_controller = AdminController()
-            admin_controller.log_activity(admin_id, 'delete_product', 'products', product_id,
-                                         {'name': product['name']}, None)
-
             return True, "Xóa sản phẩm thành công"
 
         except Exception as e:
@@ -194,14 +175,6 @@ class AdminProductController:
                 "UPDATE products SET is_available = %s, updated_at = NOW() WHERE id = %s",
                 (new_status, product_id)
             )
-
-            # Log activity
-            from controllers.admin_controller import AdminController
-            admin_controller = AdminController()
-            admin_controller.log_activity(admin_id, 'toggle_product_availability',
-                                         'products', product_id,
-                                         {'is_available': product['is_available']},
-                                         {'is_available': new_status})
 
             status_text = "hiển thị" if new_status else "ẩn"
             return True, f"Đã {status_text} sản phẩm"

@@ -137,7 +137,7 @@ class Order:
         if order:
             # Get order items
             items_query = """
-                SELECT oi.*, p.image_url
+                SELECT oi.*, p.image
                 FROM order_items oi
                 LEFT JOIN products p ON oi.product_id = p.id
                 WHERE oi.order_id = %s
@@ -261,7 +261,7 @@ class Order:
     def get_order_items(order_id: int) -> List[Dict[str, Any]]:
         """Get all items in an order"""
         query = """
-            SELECT oi.*, p.image_url
+            SELECT oi.*, p.image
             FROM order_items oi
             LEFT JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = %s

@@ -87,110 +87,27 @@ class AuthController:
     @staticmethod
     def send_otp(identifier: str, purpose: str = 'registration') -> Tuple[bool, str]:
         """
-        Send OTP to email or phone
+        Send OTP to email or phone - DEPRECATED: OTP feature removed
         Returns: (success, message)
         """
-        # Determine if identifier is email or phone
-        is_email = '@' in identifier
-
-        if is_email:
-            is_valid, error = validate_email(identifier)
-            if not is_valid:
-                return False, error
-        else:
-            is_valid, error = validate_phone(identifier)
-            if not is_valid:
-                return False, error
-
-        # Generate OTP
-        otp_code = generate_otp()
-
-        # Calculate expiry
-        expires_at = datetime.now() + timedelta(minutes=OTP_EXPIRY_MINUTES)
-
-        # Save OTP to database
-        query = """
-            INSERT INTO otp_codes (email, phone, otp_code, purpose, expires_at)
-            VALUES (%s, %s, %s, %s, %s)
-        """
-
-        email = identifier if is_email else None
-        phone = identifier if not is_email else None
-
-        otp_id = db.insert(query, (email, phone, otp_code, purpose, expires_at))
-
-        if otp_id:
-            # In production, send OTP via email/SMS service
-            # For now, just log it (in real app, you'd use SMTP or SMS gateway)
-            print(f"OTP Code: {otp_code} for {identifier}")
-            return True, f"Mã OTP đã được gửi đến {identifier}"
-        else:
-            return False, "Không thể gửi mã OTP. Vui lòng thử lại."
+        # OTP functionality has been removed from the system
+        return False, "Tính năng OTP đã bị xóa khỏi hệ thống"
 
     @staticmethod
     def verify_otp(identifier: str, otp_code: str, purpose: str = 'registration') -> Tuple[bool, str]:
         """
-        Verify OTP code
+        Verify OTP code - DEPRECATED: OTP feature removed
         Returns: (success, message)
         """
-        # Validate OTP
-        is_valid, error = validate_otp(otp_code)
-        if not is_valid:
-            return False, error
-
-        # Check if identifier is email or phone
-        is_email = '@' in identifier
-
-        # Query OTP
-        if is_email:
-            query = """
-                SELECT * FROM otp_codes
-                WHERE email = %s AND otp_code = %s AND purpose = %s
-                  AND is_used = FALSE AND expires_at > NOW()
-                ORDER BY created_at DESC
-                LIMIT 1
-            """
-        else:
-            query = """
-                SELECT * FROM otp_codes
-                WHERE phone = %s AND otp_code = %s AND purpose = %s
-                  AND is_used = FALSE AND expires_at > NOW()
-                ORDER BY created_at DESC
-                LIMIT 1
-            """
-
-        otp = db.fetch_one(query, (identifier, otp_code, purpose))
-
-        if otp:
-            # Mark OTP as used
-            db.execute_query("UPDATE otp_codes SET is_used = TRUE WHERE id = %s", (otp['id'],))
-
-            # If verifying for registration, mark email/phone as verified
-            if purpose == 'registration':
-                if is_email:
-                    user = User.get_by_email(identifier)
-                    if user:
-                        User.verify_email(user['id'])
-                else:
-                    user = User.get_by_phone(identifier)
-                    if user:
-                        User.verify_phone(user['id'])
-
-            return True, "Xác thực thành công!"
-        else:
-            return False, "Mã OTP không đúng hoặc đã hết hạn"
+        # OTP functionality has been removed from the system
+        return False, "Tính năng OTP đã bị xóa khỏi hệ thống"
 
     @staticmethod
-    def reset_password(email: str, new_password: str, otp_code: str) -> Tuple[bool, str]:
+    def reset_password(email: str, new_password: str) -> Tuple[bool, str]:
         """
-        Reset password with OTP verification
+        Reset password (simplified - OTP removed)
         Returns: (success, message)
         """
-        # Verify OTP first
-        success, message = AuthController.verify_otp(email, otp_code, 'password_reset')
-        if not success:
-            return False, message
-
         # Validate new password
         is_valid, error = validate_password(new_password)
         if not is_valid:

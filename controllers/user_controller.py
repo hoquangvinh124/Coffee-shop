@@ -23,7 +23,7 @@ class UserController:
         full_name: Optional[str] = None,
         phone: Optional[str] = None,
         date_of_birth: Optional[str] = None,
-        avatar_url: Optional[str] = None
+        avatar: Optional[str] = None
     ) -> Tuple[bool, str]:
         """
         Update user profile
@@ -52,8 +52,8 @@ class UserController:
         if date_of_birth:
             update_data['date_of_birth'] = date_of_birth
 
-        if avatar_url:
-            update_data['avatar_url'] = avatar_url
+        if avatar:
+            update_data['avatar'] = avatar
 
         if not update_data:
             return False, "Không có thông tin để cập nhật"
@@ -142,18 +142,6 @@ class UserController:
         """Mark all notifications as read"""
         return Notification.mark_all_as_read(user_id)
 
-    @staticmethod
-    def get_badges(user_id: int) -> List[Dict[str, Any]]:
-        """Get user's earned badges"""
-        from utils.database import db
-        query = """
-            SELECT b.*, ub.earned_at
-            FROM user_badges ub
-            JOIN badges b ON ub.badge_id = b.id
-            WHERE ub.user_id = %s
-            ORDER BY ub.earned_at DESC
-        """
-        return db.fetch_all(query, (user_id,))
 
     @staticmethod
     def get_points_history(user_id: int, limit: int = 20) -> List[Dict[str, Any]]:

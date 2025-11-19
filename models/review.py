@@ -36,7 +36,7 @@ class Review:
     def get_product_reviews(product_id: int, limit: int = 10) -> List[Dict[str, Any]]:
         """Get reviews for a product"""
         query = """
-            SELECT r.*, u.full_name as user_name, u.avatar_url as user_avatar
+            SELECT r.*, u.full_name as user_name, u.avatar as user_avatar
             FROM reviews r
             JOIN users u ON r.user_id = u.id
             WHERE r.product_id = %s AND r.is_approved = TRUE
@@ -49,7 +49,7 @@ class Review:
     def get_user_reviews(user_id: int) -> List[Dict[str, Any]]:
         """Get reviews by a user"""
         query = """
-            SELECT r.*, p.name as product_name, p.image_url as product_image
+            SELECT r.*, p.name as product_name, p.image as product_image
             FROM reviews r
             JOIN products p ON r.product_id = p.id
             WHERE r.user_id = %s
