@@ -32,7 +32,8 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
         self.usersButton.clicked.connect(lambda: self.switch_page(3))
         self.categoriesButton.clicked.connect(lambda: self.switch_page(4))
         self.vouchersButton.clicked.connect(lambda: self.switch_page(5))
-        self.reportsButton.clicked.connect(lambda: self.switch_page(6))
+        self.kpiButton.clicked.connect(lambda: self.switch_page(6))
+        self.reportsButton.clicked.connect(lambda: self.switch_page(7))
         self.logoutButton.clicked.connect(self.handle_logout)
 
         # Load admin data
@@ -118,6 +119,7 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
                 self.usersButton,
                 self.categoriesButton,
                 self.vouchersButton,
+                self.kpiButton,
                 self.reportsButton
             ]
 

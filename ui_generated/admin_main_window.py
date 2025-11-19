@@ -76,6 +76,10 @@ class Ui_AdminMainWindow(object):
         self.vouchersButton.setMinimumHeight(45)
         self.sidebarLayout.addWidget(self.vouchersButton)
 
+        self.kpiButton = QtWidgets.QPushButton("📊 Dự đoán KPI Logistics")
+        self.kpiButton.setMinimumHeight(45)
+        self.sidebarLayout.addWidget(self.kpiButton)
+
         self.reportsButton = QtWidgets.QPushButton("📈 Báo cáo")
         self.reportsButton.setMinimumHeight(45)
         self.sidebarLayout.addWidget(self.reportsButton)
