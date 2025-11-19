@@ -22,7 +22,7 @@ from utils.database import db
 from utils.config import STYLES_DIR, APP_NAME
 
 
-class CoffeeShopApp:
+class CoffeeShopApp: 
     """Main application class"""
 
     def __init__(self):

@@ -1,6 +1,6 @@
 """Admin Users Management"""
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QColor
 from controllers.admin_user_controller import AdminUserController
 from controllers.admin_controller import AdminController
@@ -52,7 +52,13 @@ class AdminUsersWidget(QWidget):
         self.table.setHorizontalHeaderLabels([
             "ID", "Tên", "Email", "SĐT", "Tier", "Điểm", "Tổng chi", "Thao tác"
         ])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        # self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        
+        # Fix row height issue
+        self.table.verticalHeader().setDefaultSectionSize(50)
+        self.table.verticalHeader().setMinimumSectionSize(50)
+        
         layout.addWidget(self.table)
 
     def load_users(self):
@@ -81,6 +87,7 @@ class AdminUsersWidget(QWidget):
 
             # Actions
             action_widget = QWidget()
+            action_widget.setMinimumWidth(200)
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
             action_layout.setSpacing(5)
@@ -100,9 +107,19 @@ class AdminUsersWidget(QWidget):
             self.table.setCellWidget(row, 7, action_widget)
 
             # Set row height to accommodate buttons
-            self.table.setRowHeight(row, 45)
+            self.table.setRowHeight(row, 50)
 
-        self.table.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 2, 3, 4, 5, 6]:
+            self.table.resizeColumnToContents(i)
+            
+        self.table.setColumnWidth(7, 220)
 
     def change_tier(self, user):
         tiers = ['Bronze', 'Silver', 'Gold']

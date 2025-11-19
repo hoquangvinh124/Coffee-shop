@@ -53,7 +53,7 @@ class RevenuePredictor:
                     stores.append(store_nbr)
                 except (ValueError, IndexError):
                     continue
-        return sorted(stores)
+        return sorted(stores) 
 
     def load_overall_model(self):
         """Load overall system model"""
@@ -158,7 +158,7 @@ class RevenuePredictor:
         }
 
     def predict_overall(self, days):
-        """Predict overall system revenue"""
+        """Predict overall system revenue from today"""
         model = self.load_overall_model()
 
         start_date = datetime.now()
@@ -171,17 +171,17 @@ class RevenuePredictor:
         for _, row in forecast.iterrows():
             forecasts.append({
                 'date': row['ds'].strftime("%Y-%m-%d"),
-                'forecast': float(row['yhat']),
-                'lower_bound': float(row['yhat_lower']),
-                'upper_bound': float(row['yhat_upper'])
+                'forecast': abs(float(row['yhat'])),
+                'lower_bound': abs(float(row['yhat_lower'])),
+                'upper_bound': abs(float(row['yhat_upper']))
             })
 
         summary = {
-            'avg_daily_forecast': float(forecast['yhat'].mean()),
-            'total_forecast': float(forecast['yhat'].sum()),
-            'min_forecast': float(forecast['yhat'].min()),
-            'max_forecast': float(forecast['yhat'].max()),
-            'std_forecast': float(forecast['yhat'].std())
+            'avg_daily_forecast': float(forecast['yhat'].abs().mean()),
+            'total_forecast': float(forecast['yhat'].abs().sum()),
+            'min_forecast': float(forecast['yhat'].abs().min()),
+            'max_forecast': float(forecast['yhat'].abs().max()),
+            'std_forecast': float(forecast['yhat'].abs().std())
         }
 
         return {
@@ -193,31 +193,30 @@ class RevenuePredictor:
         }
 
     def predict_store(self, store_nbr, days):
-        """Predict store revenue"""
+        """Predict store revenue from today"""
         model = self.load_store_model(store_nbr)
         store_info = self.get_store_info(store_nbr)
 
-        # Create future dataframe
-        future = model.make_future_dataframe(periods=days, freq='D')
-        forecast = model.predict(future)
+        # Create future dates starting from today
+        start_date = datetime.now()
+        future_dates = pd.date_range(start=start_date, periods=days, freq='D')
+        future_df = pd.DataFrame({'ds': future_dates})
 
-        # Get only future predictions
-        last_date = pd.to_datetime(store_info['date_to'])
-        future_forecast = forecast[forecast['ds'] > last_date].copy()
+        forecast = model.predict(future_df)
 
         forecasts = []
-        for _, row in future_forecast.iterrows():
+        for _, row in forecast.iterrows():
             forecasts.append({
                 'date': row['ds'].strftime("%Y-%m-%d"),
-                'forecast': float(row['yhat']),
-                'lower_bound': float(row['yhat_lower']),
-                'upper_bound': float(row['yhat_upper'])
+                'forecast': abs(float(row['yhat'])),
+                'lower_bound': abs(float(row['yhat_lower'])),
+                'upper_bound': abs(float(row['yhat_upper']))
             })
 
-        avg_forecast = float(future_forecast['yhat'].mean())
-        total_forecast = float(future_forecast['yhat'].sum())
+        avg_forecast = float(forecast['yhat'].abs().mean())
+        total_forecast = float(forecast['yhat'].abs().sum())
         historical_avg = store_info['historical_avg_daily']
-        growth = ((avg_forecast - historical_avg) / historical_avg * 100)
+        growth = ((avg_forecast - historical_avg) / historical_avg * 100) if historical_avg > 0 else 0
 
         return {
             'store_nbr': store_nbr,

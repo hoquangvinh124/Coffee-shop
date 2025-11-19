@@ -6,8 +6,8 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBut
                              QLineEdit, QComboBox, QTableWidget, QTableWidgetItem,
                              QMessageBox, QDialog, QTextEdit, QDoubleSpinBox,
                              QCheckBox, QDialogButtonBox, QSpinBox, QFormLayout,
-                             QFileDialog)
-from PyQt6.QtCore import Qt, QByteArray
+                             QFileDialog, QHeaderView)
+from PyQt6.QtCore import Qt, QByteArray, QTimer
 from PyQt6.QtGui import QColor, QPixmap
 from controllers.admin_product_controller import AdminProductController
 from controllers.admin_category_controller import AdminCategoryController
@@ -443,10 +443,16 @@ class AdminProductsWidget(QWidget):
         self.products_table.setHorizontalHeaderLabels([
             "ID", "Tên sản phẩm", "Danh mục", "Giá", "Nhiệt độ", "Trạng thái", "Ngày tạo", "Thao tác"
         ])
-        self.products_table.horizontalHeader().setStretchLastSection(True)
+        # self.products_table.horizontalHeader().setStretchLastSection(True)
+        self.products_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.products_table.setAlternatingRowColors(True)
         self.products_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.products_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        
+        # Fix row height issue
+        self.products_table.verticalHeader().setDefaultSectionSize(50)
+        self.products_table.verticalHeader().setMinimumSectionSize(50)
+        
         main_layout.addWidget(self.products_table)
 
     def load_products(self):
@@ -503,6 +509,7 @@ class AdminProductsWidget(QWidget):
 
             # Action buttons
             action_widget = QWidget()
+            action_widget.setMinimumWidth(200)
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
             action_layout.setSpacing(5)
@@ -531,9 +538,19 @@ class AdminProductsWidget(QWidget):
             self.products_table.setCellWidget(row, 7, action_widget)
 
             # Set row height to accommodate buttons
-            self.products_table.setRowHeight(row, 45)
+            self.products_table.setRowHeight(row, 50)
 
-        self.products_table.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        header = self.products_table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 2, 3, 4, 5, 6]:
+            self.products_table.resizeColumnToContents(i)
+            
+        self.products_table.setColumnWidth(7, 220)
 
     def handle_search(self, query):
         """Handle search"""

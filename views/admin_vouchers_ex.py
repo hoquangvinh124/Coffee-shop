@@ -1,6 +1,6 @@
 """Admin Vouchers Management"""
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, QTimer
 from controllers.admin_voucher_controller import AdminVoucherController
 from controllers.admin_controller import AdminController
 from utils.validators import format_currency
@@ -183,6 +183,11 @@ class AdminVouchersWidget(QWidget):
             "Mã", "Tên", "Loại", "Giá trị", "Sử dụng", "Từ ngày", "Đến ngày", "Thao tác"
         ])
         self.table.horizontalHeader().setStretchLastSection(True)
+        
+        # Fix row height issue
+        self.table.verticalHeader().setDefaultSectionSize(50)
+        self.table.verticalHeader().setMinimumSectionSize(50)
+        
         layout.addWidget(self.table)
 
     def load_vouchers(self):
@@ -227,6 +232,7 @@ class AdminVouchersWidget(QWidget):
             self.table.setItem(row, 6, QTableWidgetItem(to_str))
 
             action_widget = QWidget()
+            action_widget.setMinimumWidth(200)
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
             action_layout.setSpacing(5)
@@ -252,9 +258,19 @@ class AdminVouchersWidget(QWidget):
             self.table.setCellWidget(row, 7, action_widget)
 
             # Set row height to accommodate buttons
-            self.table.setRowHeight(row, 45)
+            self.table.setRowHeight(row, 50)
 
-        self.table.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 2, 3, 4, 5, 6]:
+            self.table.resizeColumnToContents(i)
+            
+        self.table.setColumnWidth(7, 220)
 
     def handle_add(self):
         dialog = VoucherDialog(parent=self)

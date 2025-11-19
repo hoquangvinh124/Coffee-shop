@@ -4,8 +4,8 @@ Order management from admin side
 """
 from PyQt6.QtWidgets import (QWidget, QPushButton, QTableWidgetItem, QHBoxLayout,
                              QMessageBox, QDialog, QVBoxLayout, QLabel, QComboBox,
-                             QTextEdit, QDialogButtonBox)
-from PyQt6.QtCore import Qt
+                             QTextEdit, QDialogButtonBox, QHeaderView)
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QColor
 from ui_generated.admin_orders import Ui_AdminOrdersWidget
 from controllers.admin_order_controller import AdminOrderController
@@ -109,6 +109,13 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
         super().__init__(parent)
         self.setupUi(self)
 
+        # Fix row height issue
+        self.ordersTable.verticalHeader().setDefaultSectionSize(50)
+        self.ordersTable.verticalHeader().setMinimumSectionSize(50)
+
+        # Configure table header
+        self.ordersTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+
         self.order_controller = AdminOrderController()
         self.admin_controller = AdminController()
 
@@ -183,6 +190,7 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
 
             # Action buttons
             action_widget = QWidget()
+            action_widget.setMinimumWidth(200)  # Prevent squashing
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
             action_layout.setSpacing(5)
@@ -228,10 +236,21 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
             self.ordersTable.setCellWidget(row, 8, action_widget)
 
             # Set row height to accommodate buttons
-            self.ordersTable.setRowHeight(row, 45)
+            self.ordersTable.setRowHeight(row, 50)
 
         # Resize columns
-        self.ordersTable.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        """Adjust column widths after layout"""
+        header = self.ordersTable.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 2, 3, 4, 5, 6, 7]:
+            self.ordersTable.resizeColumnToContents(i)
+            
+        self.ordersTable.setColumnWidth(8, 220)
 
     def get_order_type_text(self, order_type):
         """Get order type text"""

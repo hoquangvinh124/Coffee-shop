@@ -25,6 +25,7 @@ class Ui_MenuWidget(object):
 
         self.scrollContent = QtWidgets.QWidget()
         self.scrollContent.setObjectName("scrollContent")
+        self.scrollContent.setStyleSheet("QWidget#scrollContent { background-color: white; }")
 
         self.contentLayout = QtWidgets.QVBoxLayout(self.scrollContent)
         self.contentLayout.setObjectName("contentLayout")

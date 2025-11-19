@@ -82,3 +82,9 @@ CACHE_DURATION = 300  # 5 minutes
 USE_MODERN_THEME = True   # Set to False for classic theme
 MODERN_STYLESHEET = STYLES_DIR / 'modern_style.qss'
 CLASSIC_STYLESHEET = STYLES_DIR / 'style.qss'
+
+# AI Agent Settings
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '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')  # Set your OpenAI API key here or in .env
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')  # or 'gpt-3.5-turbo' for faster/cheaper
+AI_AGENT_TEMPERATURE = 0.1  # Low temperature for more deterministic SQL generation
+AI_AGENT_MAX_TOKENS = 2000

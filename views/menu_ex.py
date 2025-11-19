@@ -190,7 +190,7 @@ class MenuWidget(QWidget, Ui_MenuWidget):
 
         # Pagination variables
         self.current_page = 1
-        self.items_per_page = 9  # 3x3 grid
+        self.items_per_page = 15  # 5x3 grid
         self.total_pages = 1
         self.all_products = []  # Store all products for pagination
 
@@ -246,7 +246,7 @@ class MenuWidget(QWidget, Ui_MenuWidget):
         # Add products to grid
         row = 0
         col = 0
-        max_cols = 3
+        max_cols = 5
 
         for product in products:
             card = ProductCard(product)
@@ -261,6 +261,9 @@ class MenuWidget(QWidget, Ui_MenuWidget):
                 col = 0
                 row += 1
 
+        # Set vertical spacing between rows
+        self.productsGridLayout.setVerticalSpacing(20)
+        
         # Add stretch to fill remaining space
         self.productsGridLayout.setRowStretch(row + 1, 1)
 

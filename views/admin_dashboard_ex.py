@@ -2,8 +2,8 @@
 Admin Dashboard Widget - Extended Logic
 Display admin statistics and recent orders
 """
-from PyQt6.QtWidgets import QWidget, QPushButton, QTableWidgetItem, QHBoxLayout
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QPushButton, QTableWidgetItem, QHBoxLayout, QHeaderView
+from PyQt6.QtCore import Qt, QTimer
 from ui_generated.admin_dashboard import Ui_AdminDashboardWidget
 from controllers.admin_controller import AdminController
 from utils.validators import format_currency
@@ -16,6 +16,14 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+
+        # Fix row height issue
+        self.recentOrdersTable.verticalHeader().setDefaultSectionSize(50)
+        self.recentOrdersTable.verticalHeader().setMinimumSectionSize(50)
+
+        # Configure table header
+        self.recentOrdersTable.horizontalHeader().setStretchLastSection(False)
+        self.recentOrdersTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
         self.admin_controller = AdminController()
 
@@ -92,6 +100,7 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
 
             # Action button
             action_widget = QWidget()
+            action_widget.setMinimumWidth(100)
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
 
@@ -114,7 +123,17 @@ class AdminDashboardWidget(QWidget, Ui_AdminDashboardWidget):
             self.recentOrdersTable.setCellWidget(row, 6, action_widget)
 
         # Resize columns to content
-        self.recentOrdersTable.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        header = self.recentOrdersTable.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 2, 3, 4, 5]:
+            self.recentOrdersTable.resizeColumnToContents(i)
+            
+        self.recentOrdersTable.setColumnWidth(6, 100)
 
     def get_status_text(self, status):
         """Get Vietnamese status text"""

@@ -1,6 +1,6 @@
 """Admin Categories Management"""
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from controllers.admin_category_controller import AdminCategoryController
 from controllers.admin_controller import AdminController
 
@@ -92,6 +92,11 @@ class AdminCategoriesWidget(QWidget):
             "ID", "Icon", "Tên", "Số sản phẩm", "Trạng thái", "Thao tác"
         ])
         self.table.horizontalHeader().setStretchLastSection(True)
+        
+        # Fix row height issue
+        self.table.verticalHeader().setDefaultSectionSize(50)
+        self.table.verticalHeader().setMinimumSectionSize(50)
+        
         layout.addWidget(self.table)
 
     def load_categories(self):
@@ -110,6 +115,7 @@ class AdminCategoriesWidget(QWidget):
             self.table.setItem(row, 4, QTableWidgetItem(status))
 
             action_widget = QWidget()
+            action_widget.setMinimumWidth(200)
             action_layout = QHBoxLayout(action_widget)
             action_layout.setContentsMargins(5, 2, 5, 2)
             action_layout.setSpacing(5)
@@ -135,9 +141,19 @@ class AdminCategoriesWidget(QWidget):
             self.table.setCellWidget(row, 5, action_widget)
 
             # Set row height to accommodate buttons
-            self.table.setRowHeight(row, 45)
+            self.table.setRowHeight(row, 50)
 
-        self.table.resizeColumnsToContents()
+        QTimer.singleShot(100, self.adjust_columns)
+
+    def adjust_columns(self):
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        
+        for i in [0, 1, 3, 4]:
+            self.table.resizeColumnToContents(i)
+            
+        self.table.setColumnWidth(5, 220)
 
     def handle_add(self):
         dialog = CategoryDialog(parent=self)

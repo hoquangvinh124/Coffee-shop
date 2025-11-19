@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from predictor import get_predictor
+from revenue_forecasting.predictor import get_predictor
 
 
 class PredictionWorker(QThread):
@@ -61,6 +61,13 @@ class CompactChart(FigureCanvas):
         self.axes.set_facecolor('#ffffff')
         self.axes.grid(True, alpha=0.2, linestyle='--')
 
+        # Disable mouse wheel zoom to allow scrolling
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+    def wheelEvent(self, event):
+        """Override wheel event to pass it to parent (allow scroll)"""
+        event.ignore()
+
     def plot_line_forecast(self, data, title=None):
         """Plot line chart for forecast"""
         self.axes.clear()
@@ -80,7 +87,7 @@ class CompactChart(FigureCanvas):
             self.axes.set_title(title, fontsize=11, fontweight='bold', pad=10)
 
         self.axes.set_xlabel('Ngày', fontsize=9)
-        self.axes.set_ylabel('Doanh thu (VNĐ)', fontsize=9)
+        self.axes.set_ylabel('Doanh thu ($)', fontsize=9)
 
         if len(dates) > 10:
             step = max(1, len(dates) // 8)
@@ -103,6 +110,15 @@ class CompactChart(FigureCanvas):
 
         self.fig.tight_layout()
         self.draw()
+
+        # Return statistics for display
+        return {
+            'values': values,
+            'max': max(values),
+            'min': min(values),
+            'avg': sum(values) / len(values),
+            'total': sum(values)
+        }
 
     def plot_bar_comparison(self, stores_data, days, title=""):
         """Plot bar chart for store comparison"""
@@ -127,7 +143,7 @@ class CompactChart(FigureCanvas):
 
         self.axes.set_title(title, fontsize=11, fontweight='bold', pad=10)
         self.axes.set_xlabel('Cửa hàng', fontsize=9)
-        self.axes.set_ylabel('Doanh thu (VNĐ)', fontsize=9)
+        self.axes.set_ylabel('Doanh thu ($)', fontsize=9)
         self.axes.set_xticks(range(len(store_names)))
         self.axes.set_xticklabels(store_names, fontsize=8)
 
@@ -144,6 +160,15 @@ class CompactChart(FigureCanvas):
         self.fig.tight_layout()
         self.draw()
 
+        # Return statistics for display
+        return {
+            'values': revenues,
+            'max': max(revenues),
+            'min': min(revenues),
+            'avg': sum(revenues) / len(revenues),
+            'total': sum(revenues)
+        }
+
 
 class AdminMLAnalyticsWidget(QWidget):
     """Admin ML Analytics widget"""
@@ -153,6 +178,7 @@ class AdminMLAnalyticsWidget(QWidget):
         self.predictor = get_predictor()
         self.setup_ui()
         self.load_stores()
+        self.load_initial_stats()  # Load stats from dataset on startup
 
     def setup_ui(self):
         """Setup UI"""
@@ -196,7 +222,7 @@ class AdminMLAnalyticsWidget(QWidget):
 
         # Chart 1: Overall Forecast with own controls
         overall_section = self.create_chart_section(
-            "🌐 Dự Báo Tổng Thể Hệ Thống",
+            "Dự Báo Tổng Thể Hệ Thống",
             has_store_selector=False,
             chart_name='overall'
         )
@@ -204,7 +230,7 @@ class AdminMLAnalyticsWidget(QWidget):
 
         # Chart 2: Store Forecast with own controls
         store_section = self.create_chart_section(
-            "🏪 Dự Báo Từng Cửa Hàng",
+            "Dự Báo Từng Cửa Hàng",
             has_store_selector=True,
             chart_name='store'
         )
@@ -213,6 +239,10 @@ class AdminMLAnalyticsWidget(QWidget):
         # Chart 3 & 4: Comparison charts with shared controls
         comparison_section = self.create_comparison_section()
         main_layout.addWidget(comparison_section)
+
+        # AI Chat Assistant - Integrated
+        ai_chat_section = self.create_ai_chat_section()
+        main_layout.addWidget(ai_chat_section)
 
         # Add stretch to push everything up
         main_layout.addStretch()
@@ -246,9 +276,9 @@ class AdminMLAnalyticsWidget(QWidget):
         layout.setContentsMargins(10, 25, 10, 10)
         layout.setSpacing(15)
 
-        self.stat1 = self.create_stat_card("Tổng TB/ngày", "--", "#2196F3")
-        self.stat2 = self.create_stat_card("Tổng dự báo", "--", "#4CAF50")
-        self.stat3 = self.create_stat_card("TB cửa hàng", "--", "#FF9800")
+        self.stat1 = self.create_stat_card("Doanh thu tích lũy", "--", "#2196F3")
+        self.stat2 = self.create_stat_card("TB doanh thu cửa hàng", "--", "#4CAF50")
+        self.stat3 = self.create_stat_card("TB doanh thu cuối tuần", "--", "#FF9800")
         self.stat4 = self.create_stat_card("Tăng trưởng", "--", "#9C27B0")
 
         layout.addWidget(self.stat1)
@@ -264,7 +294,6 @@ class AdminMLAnalyticsWidget(QWidget):
         card.setStyleSheet(f"""
             QFrame {{
                 background-color: white;
-                border-left: 5px solid {color};
                 border-radius: 6px;
             }}
         """)
@@ -276,7 +305,7 @@ class AdminMLAnalyticsWidget(QWidget):
         layout.setSpacing(8)
 
         title_label = QLabel(title)
-        title_label.setStyleSheet(f"color: {color}; font-size: 12px; font-weight: bold;")
+        title_label.setStyleSheet(f"color: {color}; font-size: 16px; font-weight: bold;")
         title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         title_label.setWordWrap(True)
         layout.addWidget(title_label)
@@ -292,6 +321,48 @@ class AdminMLAnalyticsWidget(QWidget):
         layout.addStretch()
 
         return card
+
+    def create_chart_stats_panel(self, chart_name):
+        """Create stats panel for chart"""
+        panel = QFrame()
+        panel.setStyleSheet("""
+            QFrame {
+                background-color: #ffffff;
+                border: 2px solid #4a90e2;
+                border-radius: 8px;
+                padding: 15px;
+            }
+        """)
+        panel.setMinimumHeight(100)
+        panel.setMaximumHeight(120)
+        panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        layout = QGridLayout(panel)
+        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setSpacing(15)
+
+        # Create labels for stats
+        stats_labels = [
+            ("Tổng:", f"{chart_name}_total_label"),
+            ("Cao nhất:", f"{chart_name}_max_label"),
+            ("Thấp nhất:", f"{chart_name}_min_label"),
+            ("Trung bình:", f"{chart_name}_avg_label"),
+        ]
+
+        for i, (title, label_name) in enumerate(stats_labels):
+            # Title
+            title_label = QLabel(title)
+            title_label.setStyleSheet("font-size: 12px; font-weight: bold; color: #2c5aa0;")
+            layout.addWidget(title_label, i // 2, (i % 2) * 2)
+
+            # Value
+            value_label = QLabel("--")
+            value_label.setObjectName(label_name)
+            value_label.setStyleSheet("font-size: 13px; font-weight: bold; color: #1a1a1a;")
+            layout.addWidget(value_label, i // 2, (i % 2) * 2 + 1)
+            setattr(self, label_name, value_label)
+
+        return panel
 
     def create_chart_section(self, title, has_store_selector, chart_name):
         """Create section with chart and its own controls"""
@@ -378,6 +449,11 @@ class AdminMLAnalyticsWidget(QWidget):
         layout.addWidget(chart)
         setattr(self, f'{chart_name}_chart', chart)
 
+        # Stats panel (below chart)
+        stats_panel = self.create_chart_stats_panel(chart_name)
+        layout.addWidget(stats_panel)
+        setattr(self, f'{chart_name}_stats_panel', stats_panel)
+
         return section
 
     def create_comparison_section(self):
@@ -440,17 +516,27 @@ class AdminMLAnalyticsWidget(QWidget):
         charts_layout = QHBoxLayout()
 
         # Top stores
-        top_group = QGroupBox("🏆 Top Cao Nhất")
+        top_group = QGroupBox("Top Cao Nhất")
         top_layout = QVBoxLayout(top_group)
         self.top_chart = CompactChart(self)
         top_layout.addWidget(self.top_chart)
+
+        # Top stats panel
+        self.top_stats_panel = self.create_chart_stats_panel('top')
+        top_layout.addWidget(self.top_stats_panel)
+
         charts_layout.addWidget(top_group)
 
         # Bottom stores
-        bottom_group = QGroupBox("⚠️ Top Thấp Nhất")
+        bottom_group = QGroupBox("Top Thấp Nhất")
         bottom_layout = QVBoxLayout(bottom_group)
         self.bottom_chart = CompactChart(self)
         bottom_layout.addWidget(self.bottom_chart)
+
+        # Bottom stats panel
+        self.bottom_stats_panel = self.create_chart_stats_panel('bottom')
+        bottom_layout.addWidget(self.bottom_stats_panel)
+
         charts_layout.addWidget(bottom_group)
 
         layout.addLayout(charts_layout)
@@ -477,6 +563,31 @@ class AdminMLAnalyticsWidget(QWidget):
             clean_value = str(value).replace(',', '.')
             value_label.setText(clean_value)
             value_label.update()  # Force update
+
+    def update_chart_stats(self, chart_name, stats):
+        """Update chart statistics panel"""
+        def format_currency(value):
+            if value >= 1000000:
+                return f"${value/1000000:.2f}M"
+            elif value >= 1000:
+                return f"${value/1000:.1f}K"
+            else:
+                return f"${value:.0f}"
+
+        # Update labels
+        total_label = getattr(self, f'{chart_name}_total_label', None)
+        max_label = getattr(self, f'{chart_name}_max_label', None)
+        min_label = getattr(self, f'{chart_name}_min_label', None)
+        avg_label = getattr(self, f'{chart_name}_avg_label', None)
+
+        if total_label:
+            total_label.setText(format_currency(stats['total']))
+        if max_label:
+            max_label.setText(format_currency(stats['max']))
+        if min_label:
+            min_label.setText(format_currency(stats['min']))
+        if avg_label:
+            avg_label.setText(format_currency(stats['avg']))
 
     def load_stores(self):
         """Load stores list"""
@@ -536,19 +647,11 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def on_overall_loaded(self, data):
         """Handle overall loaded"""
-        self.overall_chart.plot_line_forecast(data, "Dự Báo Tổng Thể Hệ Thống")
+        stats = self.overall_chart.plot_line_forecast(data, "Dự Báo Tổng Thể Hệ Thống")
 
-        # Update stats
-        summary = data.get('summary', {})
-        avg = summary.get('avg_daily_forecast', 0)
-        total = summary.get('total_forecast', 0)
-
-        # Format with dots as thousands separator
-        avg_text = f"{int(avg):,} VNĐ".replace(',', '.')
-        total_text = f"{int(total):,} VNĐ".replace(',', '.')
-        
-        self.update_stat_card(self.stat1, avg_text)
-        self.update_stat_card(self.stat2, total_text)
+        # Update chart stats panel
+        if stats:
+            self.update_chart_stats('overall', stats)
 
         self.overall_analyze_btn.setEnabled(True)
         self.overall_analyze_btn.setText("Phân Tích")
@@ -557,18 +660,11 @@ class AdminMLAnalyticsWidget(QWidget):
         """Handle store loaded"""
         chart = getattr(self, f'{chart_name}_chart')
         store_name = f"Store #{data['store_nbr']} - {data['city']}"
-        chart.plot_line_forecast(data, store_name)
+        stats = chart.plot_line_forecast(data, store_name)
 
-        # Update stats
-        store_avg = data.get('forecast_avg_daily', 0)
-        growth = data.get('growth_percent', 0)
-
-        # Format numbers properly
-        store_avg_text = f"{int(store_avg):,} VNĐ".replace(',', '.')
-        growth_text = f"{growth:+.1f}%"
-        
-        self.update_stat_card(self.stat3, store_avg_text)
-        self.update_stat_card(self.stat4, growth_text)
+        # Update chart stats panel
+        if stats:
+            self.update_chart_stats(chart_name, stats)
 
         analyze_btn = getattr(self, f'{chart_name}_analyze_btn')
         analyze_btn.setEnabled(True)
@@ -601,12 +697,21 @@ class AdminMLAnalyticsWidget(QWidget):
     def on_top_loaded(self, data, days):
         """Handle top stores loaded"""
         stores = data.get('stores', [])
-        self.top_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Cao Nhất ({days} ngày)")
+        stats = self.top_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Cao Nhất ({days} ngày)")
+
+        # Update stats panel
+        if stats:
+            self.update_chart_stats('top', stats)
 
     def on_bottom_loaded(self, data, days):
         """Handle bottom stores loaded"""
         stores = data.get('stores', [])
-        self.bottom_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Thấp Nhất ({days} ngày)")
+        stats = self.bottom_chart.plot_bar_comparison(stores, days, f"Top {len(stores)} Thấp Nhất ({days} ngày)")
+
+        # Update stats panel
+        if stats:
+            self.update_chart_stats('bottom', stats)
+
         self.comparison_analyze_btn.setEnabled(True)
         self.comparison_analyze_btn.setText("Phân Tích")
 
@@ -621,3 +726,101 @@ class AdminMLAnalyticsWidget(QWidget):
             analyze_btn.setText("Phân Tích")
 
         QMessageBox.critical(self, "Lỗi", f"Không thể thực hiện dự đoán:\n{error_msg}")
+
+    def load_initial_stats(self):
+        """Load statistics from dataset on startup"""
+        try:
+            import pandas as pd
+            from pathlib import Path
+            
+            # Load dataset
+            data_path = Path(__file__).parent.parent / 'revenue_forecasting' / 'data' / 'daily_sales_cafe.csv'
+            df = pd.read_csv(data_path)
+            df['ds'] = pd.to_datetime(df['ds'])
+            
+            # 1. Doanh thu tích lũy (total cumulative revenue)
+            total_revenue = df['y'].sum()
+            stat1_text = f"${int(total_revenue):,}".replace(',', '.')
+            
+            # 2. Trung bình doanh thu cửa hàng (assuming all stores contribute equally)
+            # Get number of stores from metadata
+            stores = self.predictor.get_all_stores()
+            num_stores = len(stores) if stores else 54
+            avg_per_store = total_revenue / num_stores if num_stores > 0 else 0
+            stat2_text = f"${int(avg_per_store):,}".replace(',', '.')
+            
+            # 3. Trung bình doanh thu cuối tuần (Sat-Sun)
+            df['weekday'] = df['ds'].dt.dayofweek
+            weekend_df = df[df['weekday'].isin([5, 6])]  # 5=Saturday, 6=Sunday
+            avg_weekend = weekend_df['y'].mean() if len(weekend_df) > 0 else 0
+            stat3_text = f"${int(avg_weekend):,}".replace(',', '.')
+            
+            # 4. Tăng trưởng (compare first 90 days vs last 90 days)
+            df_sorted = df.sort_values('ds')
+            first_90_avg = df_sorted.head(90)['y'].mean()
+            last_90_avg = df_sorted.tail(90)['y'].mean()
+            growth_rate = ((last_90_avg - first_90_avg) / first_90_avg * 100) if first_90_avg > 0 else 0
+            stat4_text = f"{growth_rate:+.1f}%"
+            
+            # Update stat cards
+            self.update_stat_card(self.stat1, stat1_text)
+            self.update_stat_card(self.stat2, stat2_text)
+            self.update_stat_card(self.stat3, stat3_text)
+            self.update_stat_card(self.stat4, stat4_text)
+            
+        except Exception as e:
+            print(f"Error loading initial stats: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def create_ai_chat_section(self):
+        """Create AI Chat Assistant section"""
+        group = QGroupBox("🤖 AI Chat Assistant - Hỏi đáp về Dự Báo")
+        group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                font-size: 14px;
+                border: 2px solid #4CAF50;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding: 15px;
+                background-color: #f9f9f9;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 15px;
+                padding: 0 8px;
+                color: #4CAF50;
+            }
+        """)
+        group.setMinimumHeight(500)
+
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(15, 25, 15, 15)
+        layout.setSpacing(10)
+
+        # Import AI Chat widget
+        try:
+            from views.admin_ai_chat_ex import AdminAIChatWidget
+
+            # Create AI chat widget
+            ai_chat_widget = AdminAIChatWidget()
+
+            # Add to layout
+            layout.addWidget(ai_chat_widget)
+
+        except Exception as e:
+            # Show error if AI Chat cannot be loaded
+            error_label = QLabel(
+                f"⚠️ Không thể tải AI Chat Assistant.\n\n"
+                f"Lỗi: {str(e)}\n\n"
+                f"Vui lòng kiểm tra:\n"
+                f"1. File views/admin_ai_chat_ex.py tồn tại\n"
+                f"2. OpenAI API key đã được cấu hình\n"
+                f"3. Đã cài đặt: pip install openai"
+            )
+            error_label.setStyleSheet("color: red; padding: 20px;")
+            error_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(error_label)
+
+        return group
