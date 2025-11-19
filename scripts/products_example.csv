@@ -1,17 +1,3 @@
-name,name_en,category_id,description,base_price,image_path,calories_small,calories_medium,calories_large,is_hot,is_cold,is_available,is_featured,is_new,is_bestseller,is_seasonal,is_caffeine_free,ingredients
-Phin Cà Phê Sữa Đá,Iced Milk Coffee,1,Cà phê phin truyền thống kết hợp sữa đặc,45000,,150,200,280,true,true,true,true,true,true,false,false,Cà phê Robusta + Arabica - Sữa đặc
-Bạc Xỉu,Bac Xiu,1,Cà phê sữa nhẹ nhàng ngọt dịu,45000,,180,230,300,true,true,true,false,false,false,false,false,Cà phê - Sữa tươi
-Americano,Americano,1,Cà phê đen pha espresso,40000,,10,15,20,true,true,true,false,false,false,false,false,Espresso
-Cappuccino,Cappuccino,1,Espresso với sữa tươi và foam mịn,55000,,120,160,220,true,true,true,false,false,true,false,false,Espresso - Sữa tươi
-Latte,Latte,1,Espresso với nhiều sữa tươi,55000,,150,200,250,true,true,true,false,false,false,false,false,Espresso - Sữa tươi
-Trà Sữa Trân Châu Đường Đen,Brown Sugar Milk Tea,2,Trà sữa kết hợp trân châu và đường đen,55000,,300,380,450,false,true,true,false,true,true,false,true,Trà đen - Sữa tươi - Trân châu - Đường đen
-Trà Đào Cam Sả,Peach Passion Fruit Tea,2,Trà trái cây tươi mát,50000,,120,180,240,false,true,true,false,false,false,true,true,Trà xanh - Đào - Cam - Sả
-Trà Sữa Matcha,Matcha Milk Tea,2,Trà sữa matcha Nhật Bản,60000,,200,280,350,false,true,true,true,false,false,false,true,Matcha - Sữa tươi
-Bánh Croissant Bơ,Butter Croissant,3,Bánh sừng bò giòn tan thơm bơ,35000,,280,280,280,false,false,true,false,false,false,false,false,Bột mì - Bơ
-Tiramisu,Tiramisu,3,Bánh Tiramisu truyền thống Ý,50000,,350,350,350,false,false,true,false,false,false,false,false,Mascarpone - Cà phê - Bánh ladyfinger
-Bánh Mì Que Phô Mai,Cheese Breadstick,3,Bánh mì que giòn với phô mai,25000,,200,200,200,false,false,true,false,false,false,false,false,Bột mì - Phô mai
-Sinh Tố Bơ,Avocado Smoothie,4,Sinh tố bơ béo ngậy,45000,,250,320,400,false,true,true,false,false,false,false,false,Bơ - Sữa đặc - Đá
-Sinh Tố Dâu,Strawberry Smoothie,4,Sinh tố dâu tây tươi,45000,,180,250,320,false,true,true,false,false,false,true,false,Dâu tây - Sữa chua - Đường
-Sinh Tố Xoài,Mango Smoothie,4,Sinh tố xoài nhiệt đới,45000,,200,280,350,false,true,true,false,false,false,true,false,Xoài - Sữa tươi - Đá
-Đá Xay Socola,Chocolate Frappe,5,Đồ uống đá xay socola đậm đà,60000,,350,450,550,false,true,true,false,false,false,false,false,Socola - Sữa tươi - Kem - Đá xay
-Đá Xay Caramel,Caramel Frappe,5,Đá xay caramel ngọt ngào,60000,,350,450,550,false,true,true,false,false,false,false,false,Caramel - Sữa tươi - Kem - Đá xay
+version https://git-lfs.github.com/spec/v1
+oid sha256:1a195f6b52ff0dbdbb25e72d6af1e0cb710daea42d1b1acaf95a50717341ea60
+size 2828

@@ -22,8 +22,8 @@ class LoginWindow(QWidget, Ui_LoginWindow):
         self.auth_controller = AuthController()
 
         # Pre-fill login credentials
-        self.emailLineEdit.setText("hoquangvinh124@gmail.com")
-        self.passwordLineEdit.setText("Hqv846400@!?")
+        self.emailLineEdit.setText("test@example.com")
+        self.passwordLineEdit.setText("Test12345")
 
         # Connect signals
         self.loginButton.clicked.connect(self.handle_login)
