@@ -9,6 +9,9 @@ PyQt6-sip==13.6.0
 # Database
 mysql-connector-python==8.2.0
 
+# Excel support for bulk import
+openpyxl==3.1.2
+
 # For future enhancements
 requests==2.31.0  # For API calls (payment gateways, ML analytics API, etc.)
 # pillow==10.1.0    # For image processing

@@ -4,6 +4,18 @@ Bộ công cụ scripts để quản lý database, hỗ trợ tự động chuy�
 
 ---
 
+## 📦 **Cài Đặt**
+
+```bash
+# Cài đặt dependencies
+pip install -r requirements.txt
+
+# Hoặc cài riêng openpyxl cho Excel import
+pip install openpyxl
+```
+
+---
+
 ## 📦 **Danh Sách Scripts**
 
 ### 1️⃣ **add_category.py** - Thêm Danh Mục
@@ -95,7 +107,51 @@ Giá cơ bản (VND) [45000]: 45000
 
 ---
 
-### 3️⃣ **bulk_import_products.py** - Import Hàng Loạt từ CSV
+### 3️⃣ **bulk_import_products_excel.py** - Import Hàng Loạt từ Excel ⭐ KHUYẾN NGHỊ
+Import nhiều sản phẩm cùng lúc từ file Excel (.xlsx) - **Không bị lỗi UTF-8!**
+
+**Cách dùng:**
+```bash
+# Tạo file Excel template
+python scripts/create_excel_template.py
+
+# Import từ Excel
+python scripts/bulk_import_products_excel.py products_template.xlsx
+```
+
+**Tính năng:**
+- ✅ **Hỗ trợ tiếng Việt hoàn hảo** (không lỗi UTF-8)
+- ✅ Import nhiều sản phẩm cùng lúc
+- ✅ Tự động convert ảnh sang base64
+- ✅ Hỗ trợ relative path cho ảnh
+- ✅ File template có 16 sản phẩm mẫu + sheet Hướng Dẫn
+- ✅ Báo cáo chi tiết: thành công/lỗi
+
+**Ví dụ:**
+```bash
+$ python scripts/create_excel_template.py
+✅ Đã tạo file Excel template: products_template.xlsx
+   - Sheet 'Products': 16 sản phẩm mẫu
+   - Sheet 'Hướng Dẫn': Hướng dẫn sử dụng
+
+$ python scripts/bulk_import_products_excel.py products_template.xlsx
+📂 Đang đọc file: products_template.xlsx
+================================================================
+
+[1] Phin Cà Phê Sữa Đá... ✅ (ID: 1)
+[2] Bạc Xỉu... ✅ (ID: 2)
+[3] Americano... ✅ (ID: 3)
+...
+
+📊 KẾT QUẢ:
+   Tổng số: 16
+   ✅ Thành công: 16
+   ❌ Lỗi: 0
+```
+
+---
+
+### 4️⃣ **bulk_import_products.py** - Import Hàng Loạt từ CSV
 Import nhiều sản phẩm cùng lúc từ file CSV với ảnh base64.
 
 **Cách dùng:**
@@ -213,6 +269,22 @@ data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKC
 
 ---
 
+---
+
+## 📊 **So Sánh CSV vs Excel**
+
+| Tính năng | CSV | Excel (.xlsx) |
+|-----------|-----|---------------|
+| **Tiếng Việt** | ⚠️ Có thể lỗi UTF-8 | ✅ Hoàn hảo |
+| **Dễ chỉnh sửa** | ❌ Cần text editor | ✅ Excel/LibreOffice |
+| **Template** | ✅ Có | ✅ Có (với hướng dẫn) |
+| **Tốc độ** | ✅ Nhanh hơn | ⚠️ Hơi chậm |
+| **Khuyến nghị** | ❌ | ✅ **KHUYẾN NGHỊ** |
+
+**💡 Nên dùng Excel để tránh lỗi UTF-8 với tiếng Việt!**
+
+---
+
 ## 🚀 **Quick Start**
 
 ### 1. Thêm danh mục:
@@ -225,7 +297,19 @@ python scripts/add_category.py
 python scripts/add_product.py
 ```
 
-### 3. Hoặc bulk import từ CSV:
+### 3. Bulk import từ Excel (KHUYẾN NGHỊ):
+```bash
+# Tạo Excel template
+python scripts/create_excel_template.py
+
+# Mở và chỉnh sửa products_template.xlsx bằng Excel
+# Thêm ảnh vào folder images/ nếu cần
+
+# Import
+python scripts/bulk_import_products_excel.py products_template.xlsx
+```
+
+### 4. Hoặc bulk import từ CSV:
 ```bash
 # Tạo CSV mẫu
 python scripts/bulk_import_products.py
