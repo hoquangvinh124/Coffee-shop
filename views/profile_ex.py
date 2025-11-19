@@ -92,7 +92,7 @@ class ProfileWidget(QWidget):
         stats_frame.setFrameShape(QFrame.Shape.StyledPanel)
         stats_layout = QVBoxLayout(stats_frame)
 
-        stats_title = QLabel("📊 Thống kê")
+        stats_title = QLabel("Thống kê")
         stats_title.setStyleSheet("font-weight: bold; font-size: 16px;")
         stats_layout.addWidget(stats_title)
 
@@ -107,19 +107,71 @@ class ProfileWidget(QWidget):
         actions_frame.setFrameShape(QFrame.Shape.StyledPanel)
         actions_layout = QVBoxLayout(actions_frame)
 
-        edit_btn = QPushButton("✏️ Chỉnh sửa thông tin")
+        edit_btn = QPushButton("Chỉnh sửa thông tin")
+        edit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B4513;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #A0522D;
+            }
+        """)
         edit_btn.clicked.connect(self.handle_edit_profile)
         actions_layout.addWidget(edit_btn)
 
-        change_password_btn = QPushButton("🔒 Đổi mật khẩu")
+        change_password_btn = QPushButton("Đổi mật khẩu")
+        change_password_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B4513;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #A0522D;
+            }
+        """)
         change_password_btn.clicked.connect(self.handle_change_password)
         actions_layout.addWidget(change_password_btn)
 
-        points_history_btn = QPushButton("📈 Lịch sử điểm thưởng")
+        points_history_btn = QPushButton("Lịch sử điểm thưởng")
+        points_history_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B4513;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #A0522D;
+            }
+        """)
         points_history_btn.clicked.connect(self.handle_points_history)
         actions_layout.addWidget(points_history_btn)
 
-        vouchers_btn = QPushButton("🎟️ Voucher của tôi")
+        vouchers_btn = QPushButton("Voucher của tôi")
+        vouchers_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B4513;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #A0522D;
+            }
+        """)
         vouchers_btn.clicked.connect(self.handle_vouchers)
         actions_layout.addWidget(vouchers_btn)
 

@@ -37,12 +37,46 @@ class FavoriteProductCard(QFrame):
         image_label = QLabel()
         image_label.setFixedSize(220, 220)
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        image_label.setText("☕")  # Placeholder
-        image_label.setStyleSheet("""
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            font-size: 80px;
-        """)
+        
+        # Load product image from base64
+        if self.product_data.get('image'):
+            import base64
+            try:
+                image_data = base64.b64decode(self.product_data['image'])
+                pixmap = QPixmap()
+                pixmap.loadFromData(image_data)
+                if not pixmap.isNull():
+                    scaled_pixmap = pixmap.scaled(220, 220, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    image_label.setPixmap(scaled_pixmap)
+                    image_label.setStyleSheet("""
+                        background-color: #f0f0f0;
+                        border-radius: 8px;
+                    """)
+                else:
+                    # Fallback to placeholder if image fails to load
+                    image_label.setText("☕")
+                    image_label.setStyleSheet("""
+                        background-color: #f0f0f0;
+                        border-radius: 8px;
+                        font-size: 80px;
+                    """)
+            except Exception:
+                # Fallback to placeholder on any error
+                image_label.setText("☕")
+                image_label.setStyleSheet("""
+                    background-color: #f0f0f0;
+                    border-radius: 8px;
+                    font-size: 80px;
+                """)
+        else:
+            # No image data, use placeholder
+            image_label.setText("☕")
+            image_label.setStyleSheet("""
+                background-color: #f0f0f0;
+                border-radius: 8px;
+                font-size: 80px;
+            """)
+        
         layout.addWidget(image_label)
 
         # Product name

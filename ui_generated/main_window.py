@@ -89,11 +89,6 @@ class Ui_MainWindow(object):
         self.profileButton.setObjectName("profileButton")
         self.sidebarLayout.addWidget(self.profileButton)
 
-        self.notificationsButton = QtWidgets.QPushButton(self.sidebarWidget)
-        self.notificationsButton.setMinimumHeight(45)
-        self.notificationsButton.setObjectName("notificationsButton")
-        self.sidebarLayout.addWidget(self.notificationsButton)
-
         # Spacer
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum,
                                            QtWidgets.QSizePolicy.Policy.Expanding)
@@ -134,5 +129,4 @@ class Ui_MainWindow(object):
         self.ordersButton.setText(_translate("MainWindow", "Đơn hàng"))
         self.favoritesButton.setText(_translate("MainWindow", "Yêu thích"))
         self.profileButton.setText(_translate("MainWindow", "Tài khoản"))
-        self.notificationsButton.setText(_translate("MainWindow", "Thông báo"))
         self.logoutButton.setText(_translate("MainWindow", "Đăng xuất"))

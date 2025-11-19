@@ -92,13 +92,27 @@ def import_products_from_excel(excel_path: str):
     try:
         # Load workbook
         wb = load_workbook(excel_path, read_only=True, data_only=True)
-        ws = wb.active
+        
+        # Try to find 'Products' sheet, otherwise use active sheet
+        if 'Products' in wb.sheetnames:
+            ws = wb['Products']
+            print(f"📄 Đọc sheet: Products")
+        else:
+            ws = wb.active
+            print(f"📄 Đọc sheet: {ws.title}")
 
         # Get headers from first row
         headers = []
         for cell in ws[1]:
-            headers.append(cell.value)
+            # Bỏ qua cell rỗng và chuyển sang string
+            if cell.value is not None:
+                headers.append(str(cell.value))
+            else:
+                headers.append('')
 
+        # Lọc bỏ headers rỗng
+        headers = [h for h in headers if h]
+        
         print(f"📋 Tìm thấy {len(headers)} cột: {', '.join(headers)}")
 
         # Validate required headers
@@ -134,9 +148,15 @@ def import_products_from_excel(excel_path: str):
                     error_count += 1
                     continue
 
-                name_en = str(get_cell_value(row, headers, 'name_en', name)).strip()
-                description = str(get_cell_value(row, headers, 'description', '')).strip()
-                ingredients = str(get_cell_value(row, headers, 'ingredients', '')).strip()
+                name_en = get_cell_value(row, headers, 'name_en', name)
+                name_en = str(name_en).strip() if name_en else name
+                
+                description = get_cell_value(row, headers, 'description', '')
+                description = str(description).strip() if description else ''
+                
+                ingredients = get_cell_value(row, headers, 'ingredients', '')
+                ingredients = str(ingredients).strip() if ingredients else ''
+                
                 base_price = float(get_cell_value(row, headers, 'base_price', 0))
 
                 if base_price == 0:
@@ -145,7 +165,8 @@ def import_products_from_excel(excel_path: str):
                     continue
 
                 # Image conversion
-                image_path = str(get_cell_value(row, headers, 'image_path', '')).strip()
+                image_path = get_cell_value(row, headers, 'image_path', '')
+                image_path = str(image_path).strip() if image_path else ''
                 image_base64 = None
                 if image_path:
                     # If relative path, make it relative to Excel file location

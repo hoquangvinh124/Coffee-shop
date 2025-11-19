@@ -68,12 +68,11 @@ class AdminCategoryController:
             # Insert category
             category_id = db.insert(
                 """INSERT INTO categories
-                   (name, description, icon, display_order, is_active, created_at, updated_at)
-                   VALUES (%s, %s, %s, %s, %s, NOW(), NOW())""",
+                   (name, description, display_order, is_active, created_at, updated_at)
+                   VALUES (%s, %s, %s, %s, NOW(), NOW())""",
                 (
                     data['name'],
                     data.get('description', ''),
-                    data.get('icon', '☕'),
                     data.get('display_order', display_order),
                     data.get('is_active', True)
                 )
@@ -112,13 +111,12 @@ class AdminCategoryController:
             # Update category
             db.execute_query(
                 """UPDATE categories SET
-                   name = %s, description = %s, icon = %s,
+                   name = %s, description = %s,
                    display_order = %s, is_active = %s, updated_at = NOW()
                    WHERE id = %s""",
                 (
                     data['name'],
                     data.get('description', ''),
-                    data.get('icon', '☕'),
                     data.get('display_order', old_category['display_order']),
                     data.get('is_active', True),
                     category_id

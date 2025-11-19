@@ -34,10 +34,6 @@ class CategoryDialog(QDialog):
         """)
         layout.addRow("Mô tả:", self.desc_edit)
         
-        self.icon_edit = QLineEdit()
-        self.icon_edit.setPlaceholderText("☕")
-        layout.addRow("Icon:", self.icon_edit)
-        
         self.active_check = QCheckBox("Hiển thị")
         self.active_check.setChecked(True)
         layout.addRow("Trạng thái:", self.active_check)
@@ -50,14 +46,12 @@ class CategoryDialog(QDialog):
     def load_data(self):
         self.name_edit.setText(self.category['name'])
         self.desc_edit.setPlainText(self.category.get('description', ''))
-        self.icon_edit.setText(self.category.get('icon', '☕'))
         self.active_check.setChecked(self.category['is_active'])
 
     def get_data(self):
         return {
             'name': self.name_edit.text().strip(),
             'description': self.desc_edit.toPlainText().strip(),
-            'icon': self.icon_edit.text().strip() or '☕',
             'is_active': self.active_check.isChecked()
         }
 
@@ -87,9 +81,9 @@ class AdminCategoriesWidget(QWidget):
         layout.addLayout(header)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(6)
+        self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels([
-            "ID", "Icon", "Tên", "Số sản phẩm", "Trạng thái", "Thao tác"
+            "ID", "Tên", "Số sản phẩm", "Trạng thái", "Thao tác"
         ])
         self.table.horizontalHeader().setStretchLastSection(True)
         
@@ -107,12 +101,11 @@ class AdminCategoriesWidget(QWidget):
         self.table.setRowCount(len(categories))
         for row, cat in enumerate(categories):
             self.table.setItem(row, 0, QTableWidgetItem(str(cat['id'])))
-            self.table.setItem(row, 1, QTableWidgetItem(cat.get('icon', '☕')))
-            self.table.setItem(row, 2, QTableWidgetItem(cat['name']))
-            self.table.setItem(row, 3, QTableWidgetItem(str(cat.get('product_count', 0))))
+            self.table.setItem(row, 1, QTableWidgetItem(cat['name']))
+            self.table.setItem(row, 2, QTableWidgetItem(str(cat.get('product_count', 0))))
             
             status = "✅ Hiển thị" if cat['is_active'] else "❌ Ẩn"
-            self.table.setItem(row, 4, QTableWidgetItem(status))
+            self.table.setItem(row, 3, QTableWidgetItem(status))
 
             action_widget = QWidget()
             action_widget.setMinimumWidth(200)
@@ -138,7 +131,7 @@ class AdminCategoriesWidget(QWidget):
             delete_btn.clicked.connect(lambda checked, c=cat: self.handle_delete(c))
             action_layout.addWidget(delete_btn)
 
-            self.table.setCellWidget(row, 5, action_widget)
+            self.table.setCellWidget(row, 4, action_widget)
 
             # Set row height to accommodate buttons
             self.table.setRowHeight(row, 50)
@@ -147,13 +140,13 @@ class AdminCategoriesWidget(QWidget):
 
     def adjust_columns(self):
         header = self.table.horizontalHeader()
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
         
-        for i in [0, 1, 3, 4]:
+        for i in [0, 2, 3]:
             self.table.resizeColumnToContents(i)
             
-        self.table.setColumnWidth(5, 220)
+        self.table.setColumnWidth(4, 220)
 
     def handle_add(self):
         dialog = CategoryDialog(parent=self)

@@ -62,7 +62,6 @@ class FavoritesController:
                 SELECT
                     p.*,
                     c.name as category_name,
-                    c.icon as category_icon,
                     COALESCE(AVG(r.rating), 0) as rating,
                     COUNT(DISTINCT r.id) as total_reviews,
                     f.created_at as favorited_at
@@ -71,7 +70,7 @@ class FavoritesController:
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE f.user_id = %s AND p.is_available = 1
-                GROUP BY p.id, c.name, c.icon, f.created_at
+                GROUP BY p.id, c.name, f.created_at
                 ORDER BY f.created_at DESC
             """
 
@@ -90,7 +89,6 @@ class FavoritesController:
                     'base_price': float(product['base_price']),
                     'image': product['image'],
                     'category_name': product['category_name'],
-                    'category_icon': product['category_icon'],
                     'rating': float(product['rating']),
                     'total_reviews': product['total_reviews'],
                     'is_hot': bool(product['is_hot']),

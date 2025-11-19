@@ -34,7 +34,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ordersButton.clicked.connect(lambda: self.switch_page(2))
         self.favoritesButton.clicked.connect(lambda: self.switch_page(3))
         self.profileButton.clicked.connect(lambda: self.switch_page(4))
-        self.notificationsButton.clicked.connect(lambda: self.switch_page(5))
         self.logoutButton.clicked.connect(self.handle_logout)
 
         # Load user data
@@ -82,8 +81,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.cartButton,
                 self.ordersButton,
                 self.favoritesButton,
-                self.profileButton,
-                self.notificationsButton
+                self.profileButton
             ]
 
             for i, btn in enumerate(buttons):

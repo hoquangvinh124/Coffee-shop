@@ -21,7 +21,6 @@ from views.menu_ex import MenuWidget
 from utils.database import db
 from utils.config import STYLES_DIR, APP_NAME
 
-
 class CoffeeShopApp: 
     """Main application class"""
 
@@ -143,12 +142,6 @@ class CoffeeShopApp:
         # Profile page
         profile_widget = ProfileWidget()
         self.main_window.add_content_page(profile_widget)
-
-        # Notifications page (placeholder for now)
-        notifications_page = QWidget()
-        notifications_layout = QVBoxLayout(notifications_page)
-        notifications_layout.addWidget(QLabel("🔔 Thông báo - Đang phát triển"))
-        self.main_window.add_content_page(notifications_page)
 
         # Store references for later use
         self.menu_widget = menu_widget

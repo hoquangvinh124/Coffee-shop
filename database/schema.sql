@@ -55,7 +55,6 @@ CREATE TABLE categories (
     name VARCHAR(100) NOT NULL,
     name_en VARCHAR(100),
     description TEXT,
-    icon VARCHAR(10) DEFAULT '☕',  -- Emoji icon as placeholder
     image LONGTEXT,  -- Base64 encoded image (LONGTEXT for large images)
     display_order INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
@@ -341,12 +340,12 @@ CREATE TABLE notifications (
 -- ============================================
 
 -- Insert Sample Categories
-INSERT INTO categories (name, name_en, description, icon, display_order) VALUES
-('Cà Phê', 'Coffee', 'Các loại cà phê truyền thống và hiện đại', '☕', 1),
-('Trà', 'Tea', 'Trà sữa và trà trái cây', '🥤', 2),
-('Bánh Ngọt', 'Pastries', 'Bánh ngọt và đồ ăn nhẹ', '🍰', 3),
-('Sinh Tố', 'Smoothies', 'Sinh tố trái cây tươi', '🧋', 4),
-('Đồ Uống Đá Xay', 'Frozen Drinks', 'Các loại đồ uống đá xay', '🍹', 5);
+INSERT INTO categories (name, name_en, description, display_order) VALUES
+('Cà Phê', 'Coffee', 'Các loại cà phê truyền thống và hiện đại', 1),
+('Trà', 'Tea', 'Trà sữa và trà trái cây', 2),
+('Bánh Ngọt', 'Pastries', 'Bánh ngọt và đồ ăn nhẹ', 3),
+('Sinh Tố', 'Smoothies', 'Sinh tố trái cây tươi', 4),
+('Đồ Uống Đá Xay', 'Frozen Drinks', 'Các loại đồ uống đá xay', 5);
 
 -- Insert Sample Toppings
 INSERT INTO toppings (name, name_en, price, calories) VALUES
