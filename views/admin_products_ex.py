@@ -314,9 +314,9 @@ class ProductDialog(QDialog):
         self.price_spin.setValue(float(self.product['base_price']))
         self.ingredients_edit.setText(self.product.get('ingredients', ''))
 
-        self.calories_s_spin.setValue(self.product.get('calories_small', 0))
-        self.calories_m_spin.setValue(self.product.get('calories_medium', 0))
-        self.calories_l_spin.setValue(self.product.get('calories_large', 0))
+        self.calories_s_spin.setValue(self.product.get('calories_small') or 0)
+        self.calories_m_spin.setValue(self.product.get('calories_medium') or 0)
+        self.calories_l_spin.setValue(self.product.get('calories_large') or 0)
 
         self.hot_check.setChecked(self.product['is_hot'])
         self.cold_check.setChecked(self.product['is_cold'])
@@ -528,9 +528,9 @@ class AdminProductsWidget(QWidget):
             toggle_btn.clicked.connect(lambda checked, p=product: self.handle_toggle_product(p))
             action_layout.addWidget(toggle_btn)
 
-            # Delete button
+            # Delete button (hard delete)
             delete_btn = QPushButton("Xóa")
-            delete_btn.setToolTip("Xóa sản phẩm")
+            delete_btn.setToolTip("Xóa vĩnh viễn sản phẩm khỏi hệ thống")
             delete_btn.setStyleSheet("background-color: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
             delete_btn.clicked.connect(lambda checked, p=product: self.handle_delete_product(p))
             action_layout.addWidget(delete_btn)
@@ -614,8 +614,10 @@ class AdminProductsWidget(QWidget):
         """Handle delete product"""
         reply = QMessageBox.question(
             self,
-            "Xác nhận",
-            f"Bạn có chắc chắn muốn xóa sản phẩm '{product['name']}'?",
+            "Xác nhận xóa",
+            f"Bạn có chắc chắn muốn XÓA VĨNH VIỄN sản phẩm '{product['name']}'?\n\n"
+            f"CẢNH BÁO: Hành động này KHÔNG THỂ HOÀN TÁC!\n"
+            f"Sản phẩm sẽ bị xóa hoàn toàn khỏi hệ thống.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 

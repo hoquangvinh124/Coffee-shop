@@ -142,7 +142,7 @@ class AdminProductController:
             return False, f"Lỗi: {str(e)}"
 
     def delete_product(self, product_id, admin_id):
-        """Delete product (soft delete)"""
+        """Delete product (hard delete - remove from database)"""
         try:
             # Get product for logging
             product = self.get_product_by_id(product_id)
@@ -150,13 +150,13 @@ class AdminProductController:
             if not product:
                 return False, "Không tìm thấy sản phẩm"
 
-            # Soft delete - set is_available to False
+            # Hard delete - actually remove from database
             db.execute_query(
-                "UPDATE products SET is_available = 0, updated_at = NOW() WHERE id = %s",
+                "DELETE FROM products WHERE id = %s",
                 (product_id,)
             )
 
-            return True, "Xóa sản phẩm thành công"
+            return True, "Đã xóa sản phẩm khỏi hệ thống"
 
         except Exception as e:
             return False, f"Lỗi: {str(e)}"

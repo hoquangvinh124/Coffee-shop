@@ -8,10 +8,27 @@ from utils.database import db
 
 
 class AdminController:
-    """Controller for admin operations"""
+    """Controller for admin operations - Singleton pattern"""
+    
+    _instance = None
+    _current_admin = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(AdminController, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self):
-        self.current_admin = None
+        # Don't reset current_admin if already initialized
+        pass
+    
+    @property
+    def current_admin(self):
+        return self._current_admin
+    
+    @current_admin.setter
+    def current_admin(self, value):
+        self._current_admin = value
 
     def login(self, username, password):
         """Admin login"""
@@ -49,16 +66,16 @@ class AdminController:
 
     def logout(self):
         """Admin logout"""
-        if self.current_admin:
-            self.current_admin = None
+        if self._current_admin:
+            self._current_admin = None
 
     def get_current_admin(self):
         """Get current logged in admin"""
-        return self.current_admin
+        return self._current_admin
 
     def get_current_admin_id(self):
         """Get current admin ID"""
-        return self.current_admin['id'] if self.current_admin else None
+        return self._current_admin['id'] if self._current_admin else None
 
     def log_activity(self, admin_id, action, table_name=None, record_id=None, old_value=None, new_value=None):
         """Log admin activity - DEPRECATED: admin_activity_log table removed"""

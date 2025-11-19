@@ -21,7 +21,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     date_of_birth DATE,
-    avatar TEXT,  -- Base64 encoded image
+    avatar LONGTEXT,  -- Base64 encoded image (LONGTEXT for large images)
     membership_tier ENUM('Bronze', 'Silver', 'Gold') DEFAULT 'Bronze',
     loyalty_points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -56,7 +56,7 @@ CREATE TABLE categories (
     name_en VARCHAR(100),
     description TEXT,
     icon VARCHAR(10) DEFAULT '☕',  -- Emoji icon as placeholder
-    image TEXT,  -- Base64 encoded image (use this if available, otherwise use icon)
+    image LONGTEXT,  -- Base64 encoded image (LONGTEXT for large images)
     display_order INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -72,7 +72,7 @@ CREATE TABLE products (
     description TEXT,
     ingredients TEXT,
     allergens JSON,
-    image TEXT,  -- Base64 encoded image
+    image LONGTEXT,  -- Base64 encoded image (LONGTEXT for large images)
     base_price DECIMAL(10, 2) NOT NULL,
     calories_small INT,
     calories_medium INT,
