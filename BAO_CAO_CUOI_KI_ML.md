@@ -2,22 +2,14 @@
 
 **Môn học:** Học máy (Machine Learning) trong phân tích kinh doanh (E)
 
-**Đề tài:** Hệ thống Dự báo Doanh thu thông minh ứng dụng Machine Learning và AI Agent cho Chuỗi Cửa hàng Cà phê
+**Đề tài:** Ứng dụng Machine Learning trong Dự báo Doanh thu và Hỗ trợ Quyết định Kinh doanh cho Chuỗi Cửa hàng Cà phê
 
-**Sinh viên thực hiện:** [Họ tên sinh viên]  
-**MSSV:** [Mã số sinh viên]  
-**Lớp:** [Lớp]  
+**Sinh viên thực hiện:** [Họ tên sinh viên]
+**MSSV:** [Mã số sinh viên]
+**Lớp:** [Lớp]
 **Giảng viên hướng dẫn:** [Tên giảng viên]
 
-**Ngày nộp:** Tháng 11, 2025
-
----
-
-## TÓM TẮT ĐỀ TÀI
-
-Đề tài xây dựng một hệ thống dự báo doanh thu thông minh tích hợp Machine Learning (Prophet), AI Agent (GPT-4), và giao diện quản lý desktop (PyQt6) cho chuỗi cửa hàng cà phê. Hệ thống gồm ba thành phần chính: **(1)** Mô-đun ML forecasting với 55 mô hình Prophet (1 overall + 54 store-specific models) được huấn luyện trên 90,936+ records dữ liệu lịch sử; **(2)** AI Agent kết hợp predictions với natural language processing để phân tích và tư vấn kinh doanh bằng tiếng Việt; **(3)** Ứng dụng quản lý tích hợp database MySQL và giao diện PyQt6 với các dashboard trực quan sử dụng Matplotlib. Kết quả đạt MAPE 11.73%, vượt mục tiêu < 15%, và được triển khai thành công vào quy trình vận hành thực tế của doanh nghiệp.
-
-**Từ khóa:** Time Series Forecasting, Facebook Prophet, AI Agent, Business Analytics, PyQt6, Revenue Prediction
+**Ngày nộp:** [Ngày/Tháng/Năm]
 
 ---
 
@@ -38,160 +30,74 @@
 
 ### 1.1. Bối cảnh và lý do thực hiện dự án
 
-Trong bối cảnh chuyển đổi số và cạnh tranh gay gắt trong ngành dịch vụ F&B, việc ứng dụng Machine Learning vào phân tích và dự báo kinh doanh đã trở thành yếu tố then chốt giúp doanh nghiệp tồn tại và phát triển. Theo báo cáo của McKinsey (2023), các công ty áp dụng AI trong retail và F&B đã cải thiện accuracy trong dự báo demand lên 20-50% và giảm food waste 15-30%.
+Trong bối cảnh kinh doanh hiện đại, việc dự báo chính xác doanh thu đóng vai trò then chốt trong việc lập kế hoạch kinh doanh, quản lý nguồn lực và đưa ra quyết định chiến lược. Đặc biệt trong ngành dịch vụ ăn uống như chuỗi cửa hàng cà phê, doanh thu chịu ảnh hưởng của nhiều yếu tố như xu hướng theo mùa (seasonality), ngày lễ tết, vị trí cửa hàng, và các chương trình khuyến mãi.
 
-Trong ngành chuỗi cửa hàng cà phê, doanh thu chịu ảnh hưởng bởi nhiều yếu tố phức tạp: tính mùa vụ theo tuần/tháng/năm, ngày lễ tết, điều kiện thời tiết, vị trí địa lý, và hành vi người tiêu dùng. Phương pháp dự báo truyền thống dựa trên kinh nghiệm và Excel đã không còn đáp ứng được nhu cầu quản lý hiện đại:
+Phương pháp dự báo truyền thống dựa trên kinh nghiệm và phân tích xu hướng thủ công thường không đủ chính xác và mất nhiều thời gian. Do đó, việc ứng dụng Machine Learning, đặc biệt là các mô hình Time Series Forecasting, trở thành giải pháp tối ưu để:
 
-- **Thiếu chính xác:** Dự báo thủ công thường có sai số > 20-30%
-- **Tốn thời gian:** Phân tích dữ liệu cho 54 cửa hàng mất hàng tuần/tháng
-- **Không phát hiện patterns ẩn:** Bỏ lỡ insights quan trọng từ dữ liệu lịch sử
-- **Khó mở rộng:** Không tự động hóa được khi thêm chi nhánh mới
-
-Do đó, việc xây dựng một **hệ thống dự báo thông minh tích hợp ML, AI, và software engineering** trở thành giải pháp tối ưu để:
-
-1. **Tự động hóa hoàn toàn** quy trình dự báo và phân tích
-2. **Tăng độ chính xác** qua việc học từ big data (90,000+ records)
-3. **Phát hiện insights** từ seasonality, trends, anomalies
-4. **Hỗ trợ quyết định** real-time với AI conversational interface
-5. **Tích hợp vào quy trình** kinh doanh thực tế qua desktop application
+- **Tự động hóa** quy trình dự báo doanh thu
+- **Tăng độ chính xác** của dự đoán thông qua việc học từ dữ liệu lịch sử
+- **Phát hiện patterns** ẩn trong dữ liệu như xu hướng theo tuần/tháng/năm
+- **Hỗ trợ quyết định** kinh doanh dựa trên dữ liệu (data-driven decision making)
 
 ### 1.2. Vấn đề cần giải quyết
 
-Chuỗi cửa hàng cà phê với 54 chi nhánh đang gặp các thách thức về data-driven decision making:
+Chuỗi cửa hàng cà phê đang gặp phải các thách thức sau:
 
-**Về dự báo và phân tích:**
-- Không có công cụ dự báo doanh thu tự động cho overall system và từng store
-- Thiếu khả năng so sánh performance giữa các cửa hàng (top/bottom performers)
-- Không phát hiện được seasonality patterns và growth trends
-- Không tận dụng được 4+ năm dữ liệu lịch sử (2013-2017)
-
-**Về công nghệ và hệ thống:**
-- Dữ liệu bán hàng lưu trong MySQL nhưng không được phân tích
-- Không có dashboard trực quan cho admin monitoring
-- Thiếu AI assistant để trả lời câu hỏi kinh doanh ad-hoc
-- Không tích hợp ML vào software workflow
-
-**Về quy trình kinh doanh:**
-- Managers phải phân tích Excel thủ công mỗi tuần/tháng
-- Quyết định inventory, staffing, marketing không data-driven
-- Không có insights cho planning ngắn hạn (7-30 ngày) và dài hạn (1-8 năm)
+1. **Khó khăn trong việc dự báo doanh thu** cho từng cửa hàng và toàn hệ thống trong ngắn hạn và dài hạn
+2. **Thiếu công cụ phân tích** để đánh giá hiệu suất của từng cửa hàng và so sánh giữa các chi nhánh
+3. **Không tận dụng được dữ liệu lịch sử** phong phú (4+ năm dữ liệu từ 54 cửa hàng) để tối ưu hóa quyết định kinh doanh
+4. **Cần công cụ AI thông minh** để trả lời các câu hỏi kinh doanh bằng ngôn ngữ tự nhiên và đưa ra khuyến nghị
 
 ### 1.3. Mục tiêu của dự án
 
-**Mục tiêu tổng quan:**  
-Xây dựng **hệ thống dự báo doanh thu end-to-end** tích hợp Machine Learning models, AI Agent, và business management application để hỗ trợ quyết định kinh doanh cho chuỗi cửa hàng cà phê.
+**Mục tiêu chính:** Xây dựng hệ thống Machine Learning để dự báo doanh thu và hỗ trợ quyết định kinh doanh cho chuỗi cửa hàng cà phê.
 
-**Mục tiêu cụ thể - Machine Learning:**
+**Mục tiêu cụ thể:**
 
-1. **Phát triển mô hình Prophet forecasting** với MAPE < 15% cho:
-   - Overall system revenue (1 model)
-   - Individual store revenue (54 models)
-2. **Phân tích time series patterns:** Trend, yearly/weekly/daily seasonality, holiday effects
-3. **Generate forecasts:** 7 ngày, 30 ngày, 90 ngày, 1-8 năm
-4. **Store performance analytics:** Ranking, comparison, growth rate
-
-**Mục tiêu cụ thể - AI và Software Engineering:**
-
-5. **Xây dựng AI Forecast Agent** với OpenAI GPT-4:
-   - Natural language query processing (tiếng Việt)
-   - Tự động lấy predictions từ Prophet models
-   - Phân tích và tư vấn kinh doanh với insights
-6. **Tích hợp vào PyQt6 desktop application:**
-   - Admin dashboard với real-time statistics
-   - ML Analytics widget với interactive charts (Matplotlib)
-   - AI Chat interface cho conversational analytics
-7. **Persistence layer:** MySQL database cho business data và model metadata
+1. **Xây dựng mô hình dự báo doanh thu** sử dụng Facebook Prophet với độ chính xác cao (MAPE < 15%)
+2. **Tạo mô hình riêng biệt** cho:
+   - Toàn hệ thống (overall system)
+   - Từng cửa hàng cá nhân (store-level models)
+3. **Phát triển AI Agent** kết hợp ML models với Large Language Model (LLM) để:
+   - Trả lời câu hỏi bằng tiếng Việt tự nhiên
+   - Phân tích và đưa ra insights kinh doanh
+   - Cung cấp recommendations dựa trên dự báo
+4. **Tích hợp vào ứng dụng quản lý** để người dùng có thể sử dụng ML models trong quy trình kinh doanh thực tế
 
 ### 1.4. Phạm vi và giới hạn của dự án
 
-**Phạm vi thực hiện:**
+**Phạm vi:**
 
-**Dữ liệu:**
-- Dataset: Favorita Grocery Sales (Kaggle) adapted cho coffee shop context
-- 54 cửa hàng tại Ecuador, 4.6 năm data (01/2013 - 08/2017)
-- 90,936 records doanh thu hàng ngày
-- 350+ ngày lễ Ecuador + custom holidays
-
-**Machine Learning:**
-- Time series forecasting với Facebook Prophet
-- 55 models: 1 overall + 54 store-specific
-- Hyperparameter tuning: changepoint_prior_scale, seasonality modes
-- Evaluation metrics: MAE, MAPE, RMSE, Coverage
-
-**AI và Software:**
-- AI Agent: OpenAI GPT-4o-mini với function calling
-- Desktop app: PyQt6 (Python 3.8+)
-- Database: MySQL 8.0 với 29 tables
-- Visualization: Matplotlib, Seaborn
-- Data processing: Pandas, NumPy
-
-**Deliverables:**
-- Trained Prophet models (.pkl files)
-- Python predictor service với API
-- AI Agent với session management
-- Full-featured desktop application
-- Admin dashboard với ML analytics
-- Technical documentation
+- **Dữ liệu:** Doanh thu hàng ngày từ 54 cửa hàng, từ 01/01/2013 đến 15/08/2017 (1,688 ngày, ~90,936 records)
+- **Mô hình:** Facebook Prophet cho Time Series Forecasting
+- **AI Agent:** OpenAI GPT-4o-mini kết hợp với Prophet predictions
+- **Giao diện:** Tích hợp vào PyQt6 desktop application
+- **Ngôn ngữ:** Python 3.8+
 
 **Giới hạn:**
 
-1. **Dữ liệu:** Chỉ doanh thu (revenue), không có traffic, AOV, customer demographics
-2. **Mô hình:** Focus Prophet, không compare với ARIMA/LSTM/Transformer
-3. **Deployment:** Local desktop app, không deploy cloud/web
-4. **Scalability:** Thiết kế cho ~50-100 stores, chưa optimize cho enterprise scale
-5. **Real-time:** AI Agent cần internet, predictions offline
-6. **Language:** UI tiếng Việt, AI responses tiếng Việt, code và docs English
+- Chỉ tập trung vào dự báo doanh thu, không bao gồm các metrics khác như số lượng khách hàng, giá trị đơn hàng trung bình
+- Dữ liệu là dữ liệu giả lập từ Kaggle (Favorita Grocery Sales Forecasting), được điều chỉnh cho ngữ cảnh cửa hàng cà phê
+- Không triển khai lên cloud/production server, chỉ chạy locally
+- AI Agent phụ thuộc vào OpenAI API (cần internet connection)
 
-### 1.5. Phương pháp nghiên cứu/tiếp cận
+### 1.5. Phương pháp nghiên cứu/chọn cách tiếp cận
 
-Dự án áp dụng **phương pháp nghiên cứu thực nghiệm** (Experimental Research) kết hợp **phát triển phần mềm Agile**, với 5 giai đoạn chính:
+Dự án áp dụng phương pháp nghiên cứu thực nghiệm (Experimental Research) với quy trình:
 
-#### Giai đoạn 1: Data Collection & Preparation
-- Thu thập data từ Kaggle Favorita Grocery Sales
-- Data cleaning, transformation cho coffee shop domain
-- Exploratory Data Analysis (EDA) với Pandas, Matplotlib
-
-#### Giai đoạn 2: ML Model Development
-- Nghiên cứu Prophet algorithm và best practices
-- Feature engineering: holidays, store metadata
-- Model training và hyperparameter tuning
-- Evaluation với cross-validation và holdout set
-
-#### Giai đoạn 3: AI Agent Development
-- Thiết kế architecture: Prophet + OpenAI GPT
-- Implement query parsing và intent recognition
-- Integrate predictions với natural language generation
-- Testing với real business questions
-
-#### Giai đoạn 4: Application Integration
-- Database schema design (MySQL)
-- PyQt6 GUI development với MVC pattern
-- Matplotlib integration cho charts
-- AI chat interface implementation
-
-#### Giai đoạn 5: Testing & Deployment
-- Unit testing cho predictor service
-- Integration testing cho AI Agent
-- User acceptance testing (UAT)
-- Documentation và deployment guide
+1. **Thu thập và chuẩn bị dữ liệu:** Sử dụng dataset công khai từ Kaggle, xử lý và làm sạch dữ liệu
+2. **Phân tích khám phá dữ liệu (EDA):** Phát hiện patterns, seasonality, outliers
+3. **Xây dựng và huấn luyện mô hình:** Facebook Prophet với hyperparameter tuning
+4. **Đánh giá mô hình:** Sử dụng metrics MAE, MAPE, RMSE, Coverage
+5. **Triển khai và tích hợp:** Đóng gói models và tích hợp vào ứng dụng
+6. **Validation:** Kiểm thử với người dùng thực tế thông qua GUI
 
 **Lý do chọn Facebook Prophet:**
 
-Prophet là lựa chọn tối ưu cho business forecasting vì:
-
-1. **Designed for business analysts:** API đơn giản, không cần PhD về time series
-2. **Handles seasonality tốt:** Multiple seasonality (daily/weekly/yearly) với Fourier series
-3. **Robust với missing data:** Tự động interpolate
-4. **Holiday effects:** Built-in support cho holidays với custom events
-5. **Interpretable:** Decompose được trend, seasonality, holidays
-6. **Fast training:** Fit hàng triệu datapoints trong vài giây
-7. **Production-ready:** Phát triển bởi Meta (Facebook), battle-tested
-
-So với alternatives:
-- **ARIMA:** Khó tune, không handle multiple seasonality tốt
-- **LSTM/Deep Learning:** Cần nhiều data hơn, khó interpret, expensive training
-- **XGBoost:** Không specialize cho time series
-- **Prophet:** Best balance giữa accuracy, ease of use, và interpretability
+- **Tối ưu cho business time series:** Thiết kế riêng cho dữ liệu kinh doanh với seasonality phức tạp
+- **Dễ sử dụng:** API đơn giản, không cần expert knowledge về time series
+- **Xử lý missing data và outliers tốt:** Robust với dữ liệu thực tế
+- **Hỗ trợ holidays:** Tích hợp sẵn holiday effects
 - **Uncertainty intervals:** Cung cấp khoảng tin cậy cho predictions
 
 ---
@@ -348,258 +254,6 @@ store_config = {
     'daily_seasonality': False,
     'interval_width': 0.95
 }
-```
-
-**Lý do giảm seasonality terms:** Store-level data có ít dữ liệu hơn, tránh overfitting.
-
-#### 2.3.3. AI Forecast Agent Architecture
-
-**Kiến trúc tổng quan:**
-
-```
-User Query (Vietnamese) 
-    → Intent Recognition (GPT-4)
-    → Prediction Fetching (Prophet Models)
-    → Context Building (Format data for LLM)
-    → Insight Generation (GPT-4 Analysis)
-    → Response (Vietnamese + Charts)
-```
-
-**Components:**
-
-1. **Query Parser:** Phân tích câu hỏi để xác định:
-   - Loại forecast cần (overall/store-specific/comparison)
-   - Timeframe (7 days, 30 days, 1 year, etc.)
-   - Store numbers (nếu có)
-
-2. **Prediction Service:** Gọi Prophet models để lấy predictions
-
-3. **LLM Analyzer:** GPT-4 nhận prediction data và:
-   - Phân tích trends và patterns
-   - So sánh với historical performance
-   - Đưa ra insights và recommendations
-   - Generate response bằng tiếng Việt
-
-4. **Session Manager:** Lưu conversation history cho context-aware responses
-
-#### 2.3.4. Các công nghệ hỗ trợ trong hệ thống
-
-Hệ thống không chỉ là ML models mà là một **full-stack business intelligence application** tích hợp nhiều công nghệ:
-
-##### 2.3.4.1. Database Management - MySQL
-
-**MySQL 8.0** được sử dụng làm persistence layer cho:
-
-- **Business data:** Users, orders, products, transactions (29 tables)
-- **ML metadata:** Store information, model parameters
-- **Analytics logs:** Query history, prediction cache
-
-**Schema highlights:**
-- Normalized database design (3NF)
-- Foreign keys với cascade delete
-- Indexes cho performance optimization
-- JSON fields cho flexible data (toppings, preferences)
-
-**Example tables:**
-- `orders`: Lưu đơn hàng với revenue data
-- `stores`: Metadata của 54 cửa hàng
-- `users`: Customer và admin data
-
-##### 2.3.4.2. Desktop Application - PyQt6
-
-**PyQt6** (Python bindings cho Qt 6) được chọn vì:
-
-- **Cross-platform:** Chạy trên Windows, macOS, Linux
-- **Professional UI:** Modern widgets với styling support
-- **Performance:** C++ backend, fast rendering
-- **Rich components:** Tables, charts, dialogs, threads
-
-**Application architecture:**
-
-```
-Model-View-Controller (MVC) Pattern:
-- Models (models/): Data structures (User, Order, Product)
-- Views (views/): UI components (PyQt6 widgets)
-- Controllers (controllers/): Business logic
-- UI Generated (ui_generated/): Auto-generated từ Qt Designer
-```
-
-**Key features:**
-- Multi-threading cho long-running tasks (predictions)
-- Signal-slot mechanism cho event handling
-- Custom widgets (charts, cards, dialogs)
-- QSS styling (giống CSS)
-
-##### 2.3.4.3. Data Processing - Pandas & NumPy
-
-**Pandas** - Thư viện data manipulation:
-
-```python
-# Load và process data
-df = pd.read_csv('daily_sales_by_store.csv')
-df['date'] = pd.to_datetime(df['date'])
-df_prophet = df.rename(columns={'date': 'ds', 'sales': 'y'})
-```
-
-**NumPy** - Numerical computing:
-
-```python
-# Calculate metrics
-mae = np.mean(np.abs(actual - predicted))
-rmse = np.sqrt(np.mean((actual - predicted) ** 2))
-```
-
-**Vai trò:**
-- EDA (Exploratory Data Analysis)
-- Data cleaning và transformation
-- Feature engineering
-- Statistical calculations
-- Model evaluation
-
-##### 2.3.4.4. Visualization - Matplotlib & Seaborn
-
-**Matplotlib** - Production visualizations:
-
-```python
-fig, ax = plt.subplots(figsize=(18, 7))
-ax.plot(dates, forecast, linewidth=2, label='Forecast')
-ax.fill_between(dates, lower, upper, alpha=0.3, label='95% CI')
-```
-
-**Seaborn** - Statistical plots cho EDA:
-
-```python
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
-```
-
-**Tích hợp vào PyQt6:**
-
-```python
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-
-class ChartWidget(FigureCanvasQTAgg):
-    def __init__(self):
-        self.fig = Figure(figsize=(6, 4))
-        self.axes = self.fig.add_subplot(111)
-        super().__init__(self.fig)
-```
-
-**Charts trong application:**
-- Overall system forecast (line chart)
-- Store comparison (bar chart)
-- Top/Bottom performers (ranked charts)
-- Forecast components (decomposition plots)
-
-##### 2.3.4.5. AI Integration - OpenAI API
-
-**OpenAI GPT-4o-mini** được tích hợp qua REST API:
-
-```python
-from openai import OpenAI
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": "You are a business analyst..."},
-        {"role": "user", "content": "Dự báo doanh thu tuần sau?"}
-    ]
-)
-```
-
-**Function calling** để AI Agent gọi Prophet models:
-
-```python
-functions = [
-    {
-        "name": "get_forecast",
-        "description": "Get revenue forecast for store or overall system",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "forecast_type": {"type": "string", "enum": ["overall", "store"]},
-                "store_nbr": {"type": "integer"},
-                "days": {"type": "integer"}
-            }
-        }
-    }
-]
-```
-
-##### 2.3.4.6. Other Supporting Libraries
-
-**Prophet dependencies:**
-
-```python
-# Time series forecasting
-prophet==1.1.5          # Main forecasting library
-pystan==3.8.0           # Bayesian inference backend
-cmdstanpy==1.2.0        # CmdStan interface
-```
-
-**Python ecosystem:**
-
-```python
-# Date/time handling
-python-dateutil==2.8.2
-
-# Data validation
-pydantic==2.5.3
-
-# MySQL connector
-mysql-connector-python==8.2.0
-
-# Excel support (bulk import products)
-openpyxl==3.1.2
-
-# HTTP requests
-requests==2.31.0
-
-# Environment variables
-python-dotenv==1.0.0
-```
-
-### 2.4. Evaluation Metrics cho Time Series Forecasting
-
-Để đánh giá độ chính xác của mô hình Prophet, sử dụng các metrics chuẩn:
-
-#### 2.4.1. MAE (Mean Absolute Error)
-
-$$\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
-
-- **Ý nghĩa:** Sai số trung bình tính bằng đơn vị gốc (USD)
-- **Ưu điểm:** Dễ hiểu, không bị ảnh hưởng bởi outliers quá mức
-- **Mục tiêu:** MAE < $500
-
-#### 2.4.2. MAPE (Mean Absolute Percentage Error)
-
-$$\text{MAPE} = \frac{100\%}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|$$
-
-- **Ý nghĩa:** Sai số phần trăm trung bình
-- **Ưu điểm:** Scale-independent, dễ so sánh giữa các models
-- **Mục tiêu:** MAPE < 15% (excellent forecasting)
-
-**Thang đánh giá MAPE:**
-- < 10%: Highly accurate
-- 10-20%: Good
-- 20-50%: Reasonable
-- > 50%: Inaccurate
-
-#### 2.4.3. RMSE (Root Mean Squared Error)
-
-$$\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$$
-
-- **Ý nghĩa:** Phạt nặng các errors lớn hơn MAE
-- **Ưu điểm:** Sensitive to outliers, phát hiện worst-case scenarios
-- **Mục tiêu:** RMSE < $800
-
-#### 2.4.4. Coverage (Confidence Interval Coverage)
-
-$$\text{Coverage} = \frac{\text{Number of actual values within CI}}{\text{Total predictions}} \times 100\%$$
-
-- **Ý nghĩa:** % actual values nằm trong 95% confidence interval
-- **Mục tiêu:** ≈ 95% (nếu model calibrated tốt)
-- **Ứng dụng:** Đo độ tin cậy của uncertainty estimates
 ```
 
 Lý do giảm complexity: Tránh overfitting do dữ liệu từng cửa hàng ít hơn overall system.
@@ -1598,462 +1252,6 @@ Khuyến nghị:
 - **Yearly:** Peak vào tháng 6 và 12 (summer & holiday season)
 - **Weekly:** Chủ nhật cao nhất, Thứ 2 thấp nhất
 - **Holidays:** Positive effects (~$10-20K boost per holiday)
-
-### 4.3. Kết quả tích hợp hệ thống (Application Integration)
-
-Phần này trình bày kết quả triển khai ML models vào hệ thống quản lý quán cà phê thực tế - chứng minh dự án không chỉ là ML research mà là một **production-ready business application**.
-
-#### 4.3.1. Coffee Shop Management System Architecture
-
-**Tổng quan hệ thống:**
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   COFFEE SHOP DESKTOP APPLICATION                │
-│                         (PyQt6 - Python)                         │
-├──────────────────────────────┬──────────────────────────────────┤
-│     CUSTOMER INTERFACE       │       ADMIN INTERFACE            │
-├──────────────────────────────┼──────────────────────────────────┤
-│ • Login/Register             │ • Dashboard Analytics            │
-│ • Browse Menu                │ • Order Management               │
-│ • Add to Cart                │ • Product/Category Management    │
-│ • Place Order                │ • User Management                │
-│ • Track Orders               │ • Voucher Management             │
-│ • Loyalty Points             │ ✨ ML Analytics Dashboard        │
-│ • Favorites                  │ ✨ AI Forecast Chat              │
-└──────────────────────────────┴──────────────────────────────────┘
-                                ↓
-        ┌───────────────────────────────────────────┐
-        │      BUSINESS LOGIC LAYER (MVC)           │
-        │  Controllers + Models + Services          │
-        ├───────────────────────────────────────────┤
-        │ • Auth Controller                          │
-        │ • Order Controller                         │
-        │ • Admin Controller                         │
-        │ ✨ AI Forecast Agent Service               │
-        │ ✨ Revenue Predictor Service               │
-        └───────────────────────────────────────────┘
-                ↓                          ↓
-    ┌────────────────────┐    ┌──────────────────────┐
-    │  MySQL Database    │    │  ML Models (Pickle)  │
-    │  29 Tables         │    │  55 Prophet Models   │
-    │  Business Data     │    │  14 MB Total         │
-    └────────────────────┘    └──────────────────────┘
-```
-
-**Thống kê hệ thống:**
-
-| Component | Count | Details |
-|-----------|-------|---------|
-| **Python files** | 120+ | MVC architecture |
-| **Database tables** | 29 | Normalized schema |
-| **UI screens** | 15 | Customer + Admin |
-| **ML models** | 55 | 1 overall + 54 stores |
-| **Controllers** | 12 | Business logic |
-| **Lines of code** | ~15,000 | Excluding comments |
-
-#### 4.3.2. Admin Dashboard - ML Analytics Integration
-
-**Dashboard Overview:**
-
-**[PLACEHOLDER: Screenshot - Admin Dashboard chính với 8 stat cards]**
-
-**Real-time Statistics Cards:**
-
-| Card | Data Source | Update Frequency |
-|------|-------------|------------------|
-| Total Revenue | MySQL `orders` table | Real-time |
-| Today Revenue | MySQL aggregation | Real-time |
-| Month Revenue | MySQL aggregation | Real-time |
-| Total Orders | MySQL count | Real-time |
-| Today Orders | MySQL filter + count | Real-time |
-| Pending Orders | MySQL status filter | Real-time |
-| Total Customers | MySQL `users` count | Real-time |
-| Total Products | MySQL `products` count | Real-time |
-
-**SQL Query Example (Today Revenue):**
-
-```sql
-SELECT SUM(total_amount) as today_revenue
-FROM orders
-WHERE DATE(created_at) = CURDATE()
-  AND status IN ('confirmed', 'preparing', 'ready', 'completed');
-```
-
-**Dashboard Features:**
-
-```python
-class AdminDashboardWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-        
-        # Load real-time stats
-        self.load_stats()
-        
-        # Recent orders table
-        self.load_recent_orders(10)
-        
-        # Auto-refresh every 30 seconds
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.refresh_data)
-        self.timer.start(30000)  # 30s
-```
-
-**Recent Orders Table với rich information:**
-- Order ID, Customer Name, Store, Amount
-- Status badges (color-coded: pending/confirmed/completed)
-- Action buttons (View Details, Update Status)
-- Auto-scroll to new orders
-
-#### 4.3.3. ML Analytics Dashboard
-
-**Overview:**
-
-**[PLACEHOLDER: Screenshot - ML Analytics tab với 3 chart panels]**
-
-**3 Interactive Chart Sections:**
-
-**1. Overall System Forecast Chart:**
-
-```python
-class OverallForecastSection(QWidget):
-    def __init__(self):
-        # Controls
-        self.days_slider = QSpinBox()  # 7-365 days
-        self.start_date_picker = QDateEdit()
-        self.predict_button = QPushButton("Dự báo")
-        
-        # Chart (Matplotlib integration)
-        self.chart = CompactChart()  # FigureCanvasQTAgg
-        
-        # Connect signals
-        self.predict_button.clicked.connect(self.run_prediction)
-    
-    def run_prediction(self):
-        days = self.days_slider.value()
-        
-        # Background thread để không block UI
-        self.worker = PredictionWorker(self.predictor, 'overall', days=days)
-        self.worker.finished.connect(self.on_prediction_done)
-        self.worker.start()
-    
-    def on_prediction_done(self, result):
-        # Plot forecast với Matplotlib
-        self.chart.plot_line_forecast(result, title=f"Dự báo {days} ngày tới")
-```
-
-**Features:**
-- Date range selector (from today to +365 days)
-- Days slider với visual feedback
-- Loading spinner during prediction
-- Interactive Matplotlib chart:
-  - Line chart với markers
-  - 95% confidence interval (shaded area)
-  - Grid và axis labels
-  - Zoom/pan capabilities
-
-**2. Store Comparison Chart:**
-
-```python
-class StoreComparisonSection(QWidget):
-    def __init__(self):
-        # Controls
-        self.comparison_type = QComboBox()  # Top/Bottom/Custom
-        self.num_stores = QSpinBox()  # 5-20 stores
-        self.timeframe = QComboBox()  # 7/30/90 days
-        
-        # Chart
-        self.chart = CompactChart()
-        
-    def plot_comparison(self, data):
-        # Horizontal bar chart
-        stores = [f"Store {d['store_nbr']}" for d in data]
-        revenues = [d['forecast_avg'] for d in data]
-        
-        self.chart.axes.barh(stores, revenues, color='steelblue')
-        self.chart.axes.set_xlabel('Forecast Average Revenue ($)')
-        self.chart.axes.set_title('Top/Bottom Stores Comparison')
-```
-
-**Features:**
-- Compare top N or bottom N stores
-- Configurable timeframe
-- Color-coded bars (top: green, bottom: red)
-- Store metadata tooltip (city, type, cluster)
-
-**3. AI Chat Forecast Interface:**
-
-**[PLACEHOLDER: Screenshot - AI Chat window với conversation history]**
-
-```python
-class AIChatSection(QWidget):
-    def __init__(self):
-        # Chat display (QScrollArea)
-        self.chat_display = QVBoxLayout()
-        
-        # Input box
-        self.input_box = QLineEdit()
-        self.send_button = QPushButton("Gửi")
-        
-        # AI Agent
-        self.agent = AIForecastAgent()
-        self.session_id = str(uuid.uuid4())
-        
-    def send_message(self):
-        question = self.input_box.text()
-        
-        # Add user message to chat
-        self.add_message(question, is_user=True)
-        
-        # Query AI Agent in background
-        self.ai_thread = AIQueryThread(self.agent, question, self.session_id)
-        self.ai_thread.result_ready.connect(self.on_ai_response)
-        self.ai_thread.start()
-    
-    def on_ai_response(self, result):
-        response = result['ai_response']
-        self.add_message(response, is_user=False)
-        
-        # If có forecast data → show chart
-        if result.get('forecast_data'):
-            self.show_forecast_chart(result['forecast_data'])
-```
-
-**Chat Features:**
-- Message bubbles (user: right/brown, AI: left/gray)
-- Rich text formatting (bold, numbers, lists)
-- Conversation history per session
-- Loading indicator during AI processing
-- Auto-scroll to latest message
-- Copy response button
-- Clear chat button
-
-**Example Conversation Flow:**
-
-```
-[USER]: Doanh thu tháng tới của cửa hàng 44 là bao nhiêu?
-
-[AI]: Dự báo doanh thu 30 ngày tới của cửa hàng 44 (Quito, Type A) là 
-1,650,210 USD, trung bình 55,007 USD/ngày, tăng 12% so với tháng hiện tại.
-
-Khuyến nghị:
-1. Đảm bảo inventory đủ cho peak demand (dự kiến tuần 2 và 4 tăng 18%)
-2. Chuẩn bị marketing campaign cho mid-month để smooth revenue
-3. Monitor competitor activities tại Quito area
-4. Maintain high service quality để giữ growth momentum
-
-[Chart displayed below message showing 30-day forecast line]
-```
-
-**Performance Metrics:**
-
-| Metric | Value | Note |
-|--------|-------|------|
-| Prediction latency | 0.8-1.2s | Prophet inference |
-| AI response time | 1.5-2.5s | OpenAI API call |
-| Total response time | 2.3-3.7s | User-acceptable |
-| Chart rendering | < 0.5s | Matplotlib |
-| UI responsiveness | Always smooth | Multi-threading |
-
-#### 4.3.4. Database Integration (MySQL)
-
-**Schema Highlights (ML-relevant tables):**
-
-**1. `stores` table:**
-
-```sql
-CREATE TABLE stores (
-    store_nbr INT PRIMARY KEY,
-    city VARCHAR(100),
-    state VARCHAR(100),
-    type CHAR(1),  -- A/B/C/D
-    cluster INT,
-    INDEX idx_city (city),
-    INDEX idx_type (type)
-) ENGINE=InnoDB;
-```
-
-**Sử dụng:** Metadata cho store-level predictions, filtering, và grouping.
-
-**2. `orders` table:**
-
-```sql
-CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    store_id INT NOT NULL,
-    total_amount DECIMAL(10,2),
-    status ENUM('pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (store_id) REFERENCES stores(id),
-    INDEX idx_status (status),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB;
-```
-
-**Sử dụng:**
-- Real revenue data cho dashboard statistics
-- Potential training data cho model retraining
-- Validation của predictions (compare actual vs forecast)
-
-**3. `order_items` table:**
-
-```sql
-CREATE TABLE order_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT,
-    unit_price DECIMAL(10,2),
-    total_price DECIMAL(10,2),
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id)
-) ENGINE=InnoDB;
-```
-
-**Sử dụng:** Detailed order breakdown, có thể extend ML models để forecast product-level demand.
-
-**Database Performance:**
-
-| Operation | Avg Time | Optimization |
-|-----------|----------|--------------|
-| Dashboard stats query | 45 ms | Indexed columns |
-| Recent orders (10) | 12 ms | Indexed + LIMIT |
-| Store metadata fetch | 8 ms | Small table, cached |
-| Full order history | 180 ms | Pagination implemented |
-
-#### 4.3.5. Technology Stack Summary
-
-**Full Stack Overview:**
-
-```
-┌─────────────────────────────────────────────────┐
-│              PRESENTATION LAYER                  │
-│  PyQt6 (Desktop GUI Framework)                   │
-│  • QWidgets, QMainWindow, QDialog                │
-│  • Custom widgets (charts, cards)                │
-│  • QSS Styling (CSS-like)                        │
-└─────────────────────────────────────────────────┘
-                      ↓
-┌─────────────────────────────────────────────────┐
-│          BUSINESS LOGIC LAYER                    │
-│  Python MVC Pattern                              │
-│  • Controllers: Auth, Admin, Order, Forecast     │
-│  • Models: User, Product, Order, Store           │
-│  • Services: AI Agent, Predictor                 │
-└─────────────────────────────────────────────────┘
-                      ↓
-┌──────────────────┬──────────────┬───────────────┐
-│  DATA LAYER      │  ML LAYER    │  AI LAYER     │
-│  MySQL 8.0       │  Prophet     │  OpenAI GPT-4 │
-│  29 tables       │  55 models   │  API calls    │
-│  mysql-connector │  pickle      │  openai lib   │
-└──────────────────┴──────────────┴───────────────┘
-                      ↓
-┌─────────────────────────────────────────────────┐
-│          ANALYTICS & VISUALIZATION               │
-│  Pandas + NumPy + Matplotlib + Seaborn           │
-│  • Data processing                               │
-│  • Statistical analysis                          │
-│  • Interactive charts                            │
-└─────────────────────────────────────────────────┘
-```
-
-**Dependencies và Versions:**
-
-| Category | Library | Version | Purpose |
-|----------|---------|---------|---------|
-| **GUI** | PyQt6 | 6.6.1 | Desktop interface |
-| **Database** | mysql-connector-python | 8.2.0 | MySQL driver |
-| **ML** | prophet | 1.1.5 | Time series forecasting |
-| **ML Backend** | pystan | 3.8.0 | Bayesian inference |
-| **ML Backend** | cmdstanpy | 1.2.0 | Stan interface |
-| **Data** | pandas | 2.1.4 | Data manipulation |
-| **Data** | numpy | 1.26.3 | Numerical computing |
-| **Viz** | matplotlib | 3.8.2 | Charts and plots |
-| **Viz** | seaborn | 0.13.1 | Statistical viz |
-| **AI** | openai | 1.12.0 | GPT API |
-| **Utils** | python-dateutil | 2.8.2 | Date handling |
-| **Utils** | openpyxl | 3.1.2 | Excel operations |
-
-**Lines of Code Statistics:**
-
-```python
-# Project structure với line counts
-controllers/               ~3,200 LOC
-models/                    ~1,800 LOC  
-views/                     ~6,500 LOC
-services/                  ~1,200 LOC
-  ├─ ai_forecast_agent.py  ~476 LOC ✨
-  └─ (other services)
-revenue_forecasting/       ~2,100 LOC
-  ├─ predictor.py          ~308 LOC ✨
-  └─ notebooks/            ~850 LOC ✨
-utils/                     ~800 LOC
-database/                  ~400 LOC (SQL schemas)
-─────────────────────────────────
-Total:                     ~16,000 LOC
-```
-
-#### 4.3.6. User Experience & Usability Results
-
-**User Testing Results (10 admin users, 2 weeks):**
-
-| Criteria | Score | Feedback |
-|----------|-------|----------|
-| **Ease of Use** | 4.3/5.0 | "Intuitive ML tab, không cần training" |
-| **Prediction Accuracy Perception** | 4.5/5.0 | "Numbers make sense với historical data" |
-| **AI Chat Usefulness** | 4.1/5.0 | "Useful cho quick insights, tiếng Việt tốt" |
-| **Chart Visualization** | 4.6/5.0 | "Clear và professional, dễ present cho CEO" |
-| **Response Time** | 4.0/5.0 | "2-3s chấp nhận được, có progress indicator" |
-| **Overall Satisfaction** | 4.3/5.0 | "Game changer cho planning meetings" |
-
-**Reported Benefits:**
-
-1. **Time Savings:**
-   - Before: 2-4 giờ/tuần phân tích Excel manually
-   - After: 10-15 phút/tuần với ML dashboard
-   - **Savings: 90-95%**
-
-2. **Decision Quality:**
-   - More confident trong inventory planning (dựa trên forecasts)
-   - Better staff scheduling (biết trước peak periods)
-   - Improved marketing timing (target high-forecast weeks)
-
-3. **Insights Discovery:**
-   - "Phát hiện store 49 có potential cao nhất (+73% growth) → allocate more budget"
-   - "Weekly patterns rõ ràng → shift resources từ Mon-Tue sang Sat-Sun"
-   - "Seasonality vào tháng 6 và 12 → plan promotions accordingly"
-
-**Common Requests & Feedback:**
-
-✅ **Positive:**
-- "Dashboard đẹp và professional"
-- "AI chat trả lời đúng trọng tâm, không dài dòng"
-- "Charts export được để gửi email"
-
-⚠️ **Improvement Suggestions:**
-- "Muốn forecast theo product category (cappuccino, latte, etc.)"
-- "Thêm notification khi forecast thay đổi significantly"
-- "Mobile app version cho managers on-the-go"
-
-### 4.4. So sánh với Mục tiêu Ban đầu
-
-| Mục tiêu | Target | Actual | Status |
-|----------|--------|--------|--------|
-| **MAPE** | < 15% | 9.98% | ✅ **Vượt 33%** |
-| **MAE** | < $15,000 | $11,623 | ✅ **Vượt 23%** |
-| **RMSE** | < $20,000 | $16,332 | ✅ **Vượt 18%** |
-| **Coverage** | ~95% | 93.78% | ✅ **Đạt** |
-| **Response Time** | < 5s | 2.3s avg | ✅ **Vượt 54%** |
-| **User Satisfaction** | > 4.0/5 | 4.3/5 | ✅ **Vượt** |
-| **Models Deployed** | 55 | 55 | ✅ **100%** |
-| **AI Integration** | Yes | Yes (GPT-4o-mini) | ✅ **Complete** |
-| **GUI Integration** | Yes | Yes (PyQt6 + Matplotlib) | ✅ **Complete** |
-
-**Kết luận:** Dự án đạt và vượt TẤT CẢ các mục tiêu đã đề ra.
 
 **Chart 3: 8-Year Forecast**
 
