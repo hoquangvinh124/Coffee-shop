@@ -42,9 +42,6 @@ class AdminController:
             # Store admin session
             self.current_admin = admin
 
-            # Log activity
-            self.log_activity(admin['id'], 'login', None, None)
-
             return True, admin
 
         except Exception as e:
@@ -53,7 +50,6 @@ class AdminController:
     def logout(self):
         """Admin logout"""
         if self.current_admin:
-            self.log_activity(self.current_admin['id'], 'logout', None, None)
             self.current_admin = None
 
     def get_current_admin(self):
@@ -65,19 +61,9 @@ class AdminController:
         return self.current_admin['id'] if self.current_admin else None
 
     def log_activity(self, admin_id, action, table_name=None, record_id=None, old_value=None, new_value=None):
-        """Log admin activity"""
-        try:
-            import json
-            db.execute_query(
-                """INSERT INTO admin_activity_log
-                   (admin_id, action, table_name, record_id, old_value, new_value)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                (admin_id, action, table_name, record_id,
-                 json.dumps(old_value) if old_value else None,
-                 json.dumps(new_value) if new_value else None)
-            )
-        except Exception as e:
-            print(f"Error logging activity: {e}")
+        """Log admin activity - DEPRECATED: admin_activity_log table removed"""
+        # Activity logging has been removed from the database schema
+        pass
 
     def get_dashboard_stats(self):
         """Get dashboard statistics"""
@@ -174,9 +160,6 @@ class AdminController:
                 "UPDATE admin_users SET password_hash = %s WHERE id = %s",
                 (new_hash, admin_id)
             )
-
-            # Log activity
-            self.log_activity(admin_id, 'change_password', 'admin_users', admin_id)
 
             return True, "Đổi mật khẩu thành công"
 

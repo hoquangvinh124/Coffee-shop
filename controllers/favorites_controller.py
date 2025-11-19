@@ -88,7 +88,7 @@ class FavoritesController:
                     'name': product['name'],
                     'description': product['description'],
                     'base_price': float(product['base_price']),
-                    'image_url': product['image_url'],
+                    'image': product['image'],
                     'category_name': product['category_name'],
                     'category_icon': product['category_icon'],
                     'rating': float(product['rating']),

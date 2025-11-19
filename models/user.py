@@ -35,7 +35,7 @@ class User:
         """Authenticate user with email and password"""
         query = """
             SELECT id, email, phone, password_hash, full_name, membership_tier,
-                   loyalty_points, avatar_url, is_active
+                   loyalty_points, avatar, is_active
             FROM users
             WHERE email = %s AND is_active = TRUE
         """
@@ -56,8 +56,8 @@ class User:
     def get_by_id(user_id: int) -> Optional[Dict[str, Any]]:
         """Get user by ID"""
         query = """
-            SELECT id, email, phone, full_name, date_of_birth, avatar_url,
-                   membership_tier, loyalty_points, created_at, email_verified, phone_verified
+            SELECT id, email, phone, full_name, date_of_birth, avatar,
+                   membership_tier, loyalty_points, created_at
             FROM users
             WHERE id = %s AND is_active = TRUE
         """
@@ -100,7 +100,7 @@ class User:
     @staticmethod
     def update_profile(user_id: int, **kwargs) -> bool:
         """Update user profile"""
-        allowed_fields = ['full_name', 'phone', 'date_of_birth', 'avatar_url']
+        allowed_fields = ['full_name', 'phone', 'date_of_birth', 'avatar']
         update_fields = []
         values = []
 
@@ -209,14 +209,3 @@ class User:
         """
         return db.fetch_all(query, (user_id, limit))
 
-    @staticmethod
-    def verify_email(user_id: int) -> bool:
-        """Mark email as verified"""
-        query = "UPDATE users SET email_verified = TRUE WHERE id = %s"
-        return db.execute_query(query, (user_id,))
-
-    @staticmethod
-    def verify_phone(user_id: int) -> bool:
-        """Mark phone as verified"""
-        query = "UPDATE users SET phone_verified = TRUE WHERE id = %s"
-        return db.execute_query(query, (user_id,))

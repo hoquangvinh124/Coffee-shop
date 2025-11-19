@@ -1,9 +1,17 @@
 -- Coffee Shop Database Schema
--- Version: 1.0
--- Date: 2025-11-15
+-- Version: 2.0 - Refactored
+-- Date: 2025-11-19
+-- Changes:
+--   - Removed placeholder tables (otp_codes, badges, loyalty_missions, etc.)
+--   - Changed icon_url/image_url to base64 image storage
+--   - Removed unused verification fields
 
 CREATE DATABASE IF NOT EXISTS coffee_shop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE coffee_shop;
+
+-- ============================================
+-- USERS & AUTHENTICATION
+-- ============================================
 
 -- Users Table
 CREATE TABLE users (
@@ -13,15 +21,13 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     date_of_birth DATE,
-    avatar_url VARCHAR(500),
+    avatar TEXT,  -- Base64 encoded image
     membership_tier ENUM('Bronze', 'Silver', 'Gold') DEFAULT 'Bronze',
     loyalty_points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    email_verified BOOLEAN DEFAULT FALSE,
-    phone_verified BOOLEAN DEFAULT FALSE,
     INDEX idx_email (email),
     INDEX idx_phone (phone),
     INDEX idx_membership (membership_tier)
@@ -39,20 +45,9 @@ CREATE TABLE user_preferences (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- OTP Table for verification
-CREATE TABLE otp_codes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    email VARCHAR(255),
-    phone VARCHAR(20),
-    otp_code VARCHAR(6) NOT NULL,
-    purpose ENUM('registration', 'login', 'password_reset') NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    is_used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_email_otp (email, otp_code),
-    INDEX idx_phone_otp (phone, otp_code)
-) ENGINE=InnoDB;
+-- ============================================
+-- PRODUCTS & CATALOG
+-- ============================================
 
 -- Categories Table
 CREATE TABLE categories (
@@ -60,10 +55,12 @@ CREATE TABLE categories (
     name VARCHAR(100) NOT NULL,
     name_en VARCHAR(100),
     description TEXT,
-    icon_url VARCHAR(500),
+    icon VARCHAR(10) DEFAULT '☕',  -- Emoji icon as placeholder
+    image TEXT,  -- Base64 encoded image (use this if available, otherwise use icon)
     display_order INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- Products Table
@@ -75,7 +72,7 @@ CREATE TABLE products (
     description TEXT,
     ingredients TEXT,
     allergens JSON,
-    image_url VARCHAR(500),
+    image TEXT,  -- Base64 encoded image
     base_price DECIMAL(10, 2) NOT NULL,
     calories_small INT,
     calories_medium INT,
@@ -85,6 +82,9 @@ CREATE TABLE products (
     is_caffeine_free BOOLEAN DEFAULT FALSE,
     is_available BOOLEAN DEFAULT TRUE,
     is_featured BOOLEAN DEFAULT FALSE,
+    is_new BOOLEAN DEFAULT FALSE,
+    is_bestseller BOOLEAN DEFAULT FALSE,
+    is_seasonal BOOLEAN DEFAULT FALSE,
     rating DECIMAL(3, 2) DEFAULT 0,
     total_reviews INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -116,16 +116,43 @@ CREATE TABLE product_sizes (
     UNIQUE KEY unique_product_size (product_id, size)
 ) ENGINE=InnoDB;
 
--- User Favorites Table
-CREATE TABLE user_favorites (
+-- ============================================
+-- SHOPPING & FAVORITES
+-- ============================================
+
+-- Favorites Table
+CREATE TABLE favorites (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     product_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_product (user_id, product_id)
+    UNIQUE KEY unique_user_product (user_id, product_id),
+    INDEX idx_user (user_id),
+    INDEX idx_product (product_id)
 ) ENGINE=InnoDB;
+
+-- Shopping Cart Table
+CREATE TABLE cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    size ENUM('S', 'M', 'L') NOT NULL,
+    quantity INT NOT NULL,
+    sugar_level INT DEFAULT 50,
+    ice_level INT DEFAULT 50,
+    temperature ENUM('hot', 'cold') DEFAULT 'cold',
+    toppings JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ============================================
+-- STORES & BRANCHES
+-- ============================================
 
 -- Stores/Branches Table
 CREATE TABLE stores (
@@ -142,6 +169,10 @@ CREATE TABLE stores (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+-- ============================================
+-- ORDERS
+-- ============================================
 
 -- Orders Table
 CREATE TABLE orders (
@@ -196,22 +227,9 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 ) ENGINE=InnoDB;
 
--- Shopping Cart Table
-CREATE TABLE cart (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    product_id INT NOT NULL,
-    size ENUM('S', 'M', 'L') NOT NULL,
-    quantity INT NOT NULL,
-    sugar_level INT DEFAULT 50,
-    ice_level INT DEFAULT 50,
-    temperature ENUM('hot', 'cold') DEFAULT 'cold',
-    toppings JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- ============================================
+-- VOUCHERS & LOYALTY
+-- ============================================
 
 -- Vouchers Table
 CREATE TABLE vouchers (
@@ -247,54 +265,39 @@ CREATE TABLE user_vouchers (
     UNIQUE KEY unique_user_voucher (user_id, voucher_id)
 ) ENGINE=InnoDB;
 
--- Loyalty Missions/Challenges Table
-CREATE TABLE loyalty_missions (
+-- Voucher Usage History Table
+CREATE TABLE voucher_usage (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    mission_type ENUM('order_count', 'product_specific', 'total_spent', 'birthday') NOT NULL,
-    target_value INT NOT NULL,
-    reward_type ENUM('points', 'voucher', 'badge', 'free_item') NOT NULL,
-    reward_value VARCHAR(255),
-    start_date TIMESTAMP,
-    end_date TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    voucher_id INT NOT NULL,
+    user_id INT NOT NULL,
+    order_id INT,
+    discount_amount DECIMAL(10, 2) NOT NULL,
+    used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL,
+    INDEX idx_voucher (voucher_id),
+    INDEX idx_user (user_id),
+    INDEX idx_used_at (used_at)
 ) ENGINE=InnoDB;
 
--- User Mission Progress Table
-CREATE TABLE user_mission_progress (
+-- Loyalty Points History Table
+CREATE TABLE loyalty_points_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    mission_id INT NOT NULL,
-    current_value INT DEFAULT 0,
-    is_completed BOOLEAN DEFAULT FALSE,
-    completed_at TIMESTAMP NULL,
+    points INT NOT NULL,
+    transaction_type ENUM('earn', 'redeem', 'expire', 'adjust') NOT NULL,
+    description VARCHAR(255),
+    order_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (mission_id) REFERENCES loyalty_missions(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_mission (user_id, mission_id)
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    INDEX idx_user (user_id)
 ) ENGINE=InnoDB;
 
--- Badges Table
-CREATE TABLE badges (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    icon_url VARCHAR(500),
-    requirement TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- User Badges Table
-CREATE TABLE user_badges (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    badge_id INT NOT NULL,
-    earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (badge_id) REFERENCES badges(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_badge (user_id, badge_id)
-) ENGINE=InnoDB;
+-- ============================================
+-- REVIEWS & RATINGS
+-- ============================================
 
 -- Reviews Table
 CREATE TABLE reviews (
@@ -315,19 +318,9 @@ CREATE TABLE reviews (
     INDEX idx_rating (rating)
 ) ENGINE=InnoDB;
 
--- Loyalty Points History Table
-CREATE TABLE loyalty_points_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    points INT NOT NULL,
-    transaction_type ENUM('earn', 'redeem', 'expire', 'adjust') NOT NULL,
-    description VARCHAR(255),
-    order_id INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    INDEX idx_user (user_id)
-) ENGINE=InnoDB;
+-- ============================================
+-- NOTIFICATIONS
+-- ============================================
 
 -- Notifications Table
 CREATE TABLE notifications (
@@ -343,24 +336,17 @@ CREATE TABLE notifications (
     INDEX idx_user_unread (user_id, is_read)
 ) ENGINE=InnoDB;
 
--- Saved Payment Methods Table
-CREATE TABLE saved_payment_methods (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    payment_type ENUM('momo', 'shopeepay', 'zalopay', 'card') NOT NULL,
-    account_info VARCHAR(255),
-    is_default BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- ============================================
+-- SAMPLE DATA
+-- ============================================
 
 -- Insert Sample Categories
-INSERT INTO categories (name, name_en, description, display_order) VALUES
-('Cà Phê', 'Coffee', 'Các loại cà phê truyền thống và hiện đại', 1),
-('Trà', 'Tea', 'Trà sữa và trà trái cây', 2),
-('Bánh Ngọt', 'Pastries', 'Bánh ngọt và đồ ăn nhẹ', 3),
-('Sinh Tố', 'Smoothies', 'Sinh tố trái cây tươi', 4),
-('Đồ Uống Đá Xay', 'Frozen Drinks', 'Các loại đồ uống đá xay', 5);
+INSERT INTO categories (name, name_en, description, icon, display_order) VALUES
+('Cà Phê', 'Coffee', 'Các loại cà phê truyền thống và hiện đại', '☕', 1),
+('Trà', 'Tea', 'Trà sữa và trà trái cây', '🥤', 2),
+('Bánh Ngọt', 'Pastries', 'Bánh ngọt và đồ ăn nhẹ', '🍰', 3),
+('Sinh Tố', 'Smoothies', 'Sinh tố trái cây tươi', '🧋', 4),
+('Đồ Uống Đá Xay', 'Frozen Drinks', 'Các loại đồ uống đá xay', '🍹', 5);
 
 -- Insert Sample Toppings
 INSERT INTO toppings (name, name_en, price, calories) VALUES
@@ -378,25 +364,12 @@ INSERT INTO stores (name, address, city, district, phone, opening_time, closing_
 ('Highland Coffee Võ Văn Tần', '789 Võ Văn Tần, Quận 3', 'Hồ Chí Minh', 'Quận 3', '0281234569', '07:00:00', '23:00:00');
 
 -- Insert Sample Products
-INSERT INTO products (category_id, name, name_en, description, base_price, calories_small, calories_medium, calories_large, is_hot, is_cold) VALUES
-(1, 'Phin Cà Phê Sữa Đá', 'Iced Milk Coffee', 'Cà phê phin truyền thống kết hợp sữa đặc', 45000, 150, 200, 280, TRUE, TRUE),
-(1, 'Bạc Xỉu', 'Bac Xiu', 'Cà phê sữa nhẹ nhàng, ngọt dịu', 45000, 180, 230, 300, TRUE, TRUE),
-(1, 'Americano', 'Americano', 'Cà phê đen pha espresso', 40000, 10, 15, 20, TRUE, TRUE),
-(1, 'Cappuccino', 'Cappuccino', 'Espresso với sữa tươi và foam mịn', 55000, 120, 160, 220, TRUE, TRUE),
-(2, 'Trà Sữa Trân Châu Đường Đen', 'Brown Sugar Milk Tea', 'Trà sữa kết hợp trân châu và đường đen', 55000, 300, 380, 450, FALSE, TRUE),
-(2, 'Trà Đào Cam Sả', 'Peach Passion Fruit Tea', 'Trà trái cây tươi mát', 50000, 120, 180, 240, FALSE, TRUE),
-(3, 'Bánh Croissant Bơ', 'Butter Croissant', 'Bánh sừng bò giòn tan thơm bơ', 35000, 280, NULL, NULL, FALSE, FALSE),
-(3, 'Tiramisu', 'Tiramisu', 'Bánh Tiramisu truyền thống Ý', 50000, 350, NULL, NULL, FALSE, FALSE);
-
--- Insert Sample Badges
-INSERT INTO badges (name, description, requirement) VALUES
-('Newbie', 'Chào mừng thành viên mới', 'Đăng ký tài khoản'),
-('Coffee Lover', 'Người yêu cà phê', 'Đặt 10 đơn hàng cà phê'),
-('VIP Member', 'Thành viên VIP', 'Đạt hạng Gold'),
-('Early Bird', 'Chim sớm bay cao', 'Đặt đơn trước 8h sáng 5 lần');
-
--- Insert Sample Loyalty Missions
-INSERT INTO loyalty_missions (name, description, mission_type, target_value, reward_type, reward_value, is_active) VALUES
-('Đặt 5 Ly Latte - Tặng 1', 'Đặt mua 5 ly Latte bất kỳ để nhận miễn phí 1 ly', 'order_count', 5, 'voucher', 'FREE_LATTE', TRUE),
-('Sinh Nhật Vui Vẻ', 'Giảm 30% trong ngày sinh nhật', 'birthday', 1, 'voucher', 'BIRTHDAY30', TRUE),
-('Tích Điểm Vàng', 'Chi tiêu 1 triệu đồng để nhận 10000 điểm', 'total_spent', 1000000, 'points', '10000', TRUE);
+INSERT INTO products (category_id, name, name_en, description, base_price, calories_small, calories_medium, calories_large, is_hot, is_cold, is_new, is_bestseller) VALUES
+(1, 'Phin Cà Phê Sữa Đá', 'Iced Milk Coffee', 'Cà phê phin truyền thống kết hợp sữa đặc', 45000, 150, 200, 280, TRUE, TRUE, TRUE, TRUE),
+(1, 'Bạc Xỉu', 'Bac Xiu', 'Cà phê sữa nhẹ nhàng, ngọt dịu', 45000, 180, 230, 300, TRUE, TRUE, TRUE, FALSE),
+(1, 'Americano', 'Americano', 'Cà phê đen pha espresso', 40000, 10, 15, 20, TRUE, TRUE, TRUE, FALSE),
+(1, 'Cappuccino', 'Cappuccino', 'Espresso với sữa tươi và foam mịn', 55000, 120, 160, 220, TRUE, TRUE, FALSE, TRUE),
+(2, 'Trà Sữa Trân Châu Đường Đen', 'Brown Sugar Milk Tea', 'Trà sữa kết hợp trân châu và đường đen', 55000, 300, 380, 450, FALSE, TRUE, FALSE, TRUE),
+(2, 'Trà Đào Cam Sả', 'Peach Passion Fruit Tea', 'Trà trái cây tươi mát', 50000, 120, 180, 240, FALSE, TRUE, FALSE, FALSE),
+(3, 'Bánh Croissant Bơ', 'Butter Croissant', 'Bánh sừng bò giòn tan thơm bơ', 35000, 280, NULL, NULL, FALSE, FALSE, FALSE, FALSE),
+(3, 'Tiramisu', 'Tiramisu', 'Bánh Tiramisu truyền thống Ý', 50000, 350, NULL, NULL, FALSE, FALSE, FALSE, FALSE);
