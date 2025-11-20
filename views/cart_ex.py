@@ -127,18 +127,34 @@ class CartItemWidget(QFrame):
 
         # Subtotal and remove
         action_layout = QVBoxLayout()
+        action_layout.setSpacing(20)
 
         subtotal_label = QLabel(format_currency(self.item_data['subtotal']))
         subtotal_label.setStyleSheet("font-size: 16px; font-weight: bold; color: #c7a17a;")
         subtotal_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         action_layout.addWidget(subtotal_label)
 
+        # Add more space before button
+        action_layout.addSpacing(15)
         action_layout.addStretch()
 
         remove_btn = QPushButton("🗑️ Xóa")
         remove_btn.setMaximumWidth(100)
+        remove_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #A31E25;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #8B181F;
+            }
+        """)
         remove_btn.clicked.connect(self.on_remove_clicked)
-        action_layout.addWidget(remove_btn)
+        action_layout.addWidget(remove_btn, 0, Qt.AlignmentFlag.AlignBottom)
 
         main_layout.addLayout(action_layout)
 

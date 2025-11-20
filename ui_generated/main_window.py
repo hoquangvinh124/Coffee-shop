@@ -5,6 +5,8 @@
 ################################################################################
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt
 
 
 class Ui_MainWindow(object):
@@ -119,8 +121,15 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Coffee Shop"))
-        self.logoLabel.setText(_translate("MainWindow", "Coffee Shop"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Highlands Coffee"))
+        # Load logo image
+        logo_pixmap = QPixmap("C:/Coffee-shop/resources/images/logo.png")
+        if not logo_pixmap.isNull():
+            scaled_logo = logo_pixmap.scaled(150, 150, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            self.logoLabel.setPixmap(scaled_logo)
+            self.logoLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        else:
+            self.logoLabel.setText(_translate("MainWindow", "Highlands Coffee"))
         self.userNameLabel.setText(_translate("MainWindow", "Xin chào!"))
         self.userTierLabel.setText(_translate("MainWindow", "Bronze Member"))
         self.userPointsLabel.setText(_translate("MainWindow", "0 điểm"))

@@ -4,11 +4,13 @@ Display and manage favorite products
 """
 from PyQt6.QtWidgets import (QWidget, QFrame, QVBoxLayout, QHBoxLayout,
                              QLabel, QPushButton, QMessageBox)
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QByteArray
 from PyQt6.QtGui import QPixmap
+import base64
 from ui_generated.favorites import Ui_FavoritesWidget
 from controllers.favorites_controller import FavoritesController
 from controllers.auth_controller import AuthController
+from controllers.cart_controller import CartController
 from utils.validators import format_currency
 
 
@@ -30,52 +32,62 @@ class FavoriteProductCard(QFrame):
         self.setMaximumWidth(250)
         self.setMinimumHeight(350)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        # Card styling with white background on hover
+        self.setStyleSheet("""
+            FavoriteProductCard {
+                background-color: #F9F3EF;
+                border: 1px solid #EAEAEA;
+                border-radius: 12px;
+                padding: 10px;
+            }
+            FavoriteProductCard:hover {
+                background-color: #FFFFFF;
+                border: 2px solid #A31E25;
+            }
+        """)
 
         layout = QVBoxLayout(self)
 
-        # Product image (placeholder)
+        # Product image
         image_label = QLabel()
         image_label.setFixedSize(220, 220)
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image_label.setStyleSheet("""
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            font-size: 80px;
+        """)
         
-        # Load product image from base64
-        if self.product_data.get('image'):
-            import base64
+        # Load image from base64 if available (same as menu_ex.py)
+        product_image = self.product_data.get('image', '')
+        if product_image and product_image.startswith('data:image'):
             try:
-                image_data = base64.b64decode(self.product_data['image'])
+                # Extract base64 data
+                base64_data = product_image.split(',')[1]
+                image_bytes = base64.b64decode(base64_data)
+
+                # Create pixmap from bytes
                 pixmap = QPixmap()
-                pixmap.loadFromData(image_data)
+                pixmap.loadFromData(QByteArray(image_bytes))
+
                 if not pixmap.isNull():
-                    scaled_pixmap = pixmap.scaled(220, 220, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    scaled_pixmap = pixmap.scaled(
+                        220, 220,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
                     image_label.setPixmap(scaled_pixmap)
-                    image_label.setStyleSheet("""
-                        background-color: #f0f0f0;
-                        border-radius: 8px;
-                    """)
                 else:
-                    # Fallback to placeholder if image fails to load
+                    # Fallback to emoji if image load fails
                     image_label.setText("☕")
-                    image_label.setStyleSheet("""
-                        background-color: #f0f0f0;
-                        border-radius: 8px;
-                        font-size: 80px;
-                    """)
-            except Exception:
-                # Fallback to placeholder on any error
+            except Exception as e:
+                # Fallback to emoji on error
+                print(f"Error loading favorite product image: {e}")
                 image_label.setText("☕")
-                image_label.setStyleSheet("""
-                    background-color: #f0f0f0;
-                    border-radius: 8px;
-                    font-size: 80px;
-                """)
         else:
-            # No image data, use placeholder
-            image_label.setText("☕")
-            image_label.setStyleSheet("""
-                background-color: #f0f0f0;
-                border-radius: 8px;
-                font-size: 80px;
-            """)
+            # Use emoji as fallback
+            image_label.setText(product_image if product_image and len(product_image) < 5 else "☕")
         
         layout.addWidget(image_label)
 
@@ -105,7 +117,7 @@ class FavoriteProductCard(QFrame):
         add_btn = QPushButton("Thêm vào giỏ")
         add_btn.setStyleSheet("""
             QPushButton {
-                background-color: #c7a17a;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 8px;
@@ -113,26 +125,27 @@ class FavoriteProductCard(QFrame):
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #b8926b;
+                background-color: #8B181F;
             }
         """)
         add_btn.clicked.connect(lambda: self.add_to_cart_clicked.emit(self.product_data))
         buttons_layout.addWidget(add_btn)
 
-        # Remove from favorites button
-        remove_btn = QPushButton("💔")
+        # Remove from favorites button - white background with red heart
+        remove_btn = QPushButton("❤️")
         remove_btn.setFixedWidth(40)
         remove_btn.setStyleSheet("""
             QPushButton {
-                background-color: #ff4444;
-                color: white;
-                border: none;
+                background-color: #FFFFFF;
+                color: #A31E25;
+                border: 2px solid #A31E25;
                 padding: 8px;
                 border-radius: 4px;
                 font-size: 16px;
             }
             QPushButton:hover {
-                background-color: #cc0000;
+                background-color: #FFF0F0;
+                border: 2px solid #8B181F;
             }
         """)
         remove_btn.clicked.connect(lambda: self.remove_clicked.emit(self.product_data))
@@ -159,6 +172,7 @@ class FavoritesWidget(QWidget, Ui_FavoritesWidget):
 
         self.favorites_controller = FavoritesController()
         self.auth_controller = AuthController()
+        self.cart_controller = CartController()
 
         # Load favorites
         self.load_favorites()
@@ -250,7 +264,8 @@ class FavoritesWidget(QWidget, Ui_FavoritesWidget):
         dialog.exec()
 
     def handle_add_to_cart(self, product):
-        """Handle add to cart button - show detail dialog"""
+        """Handle add to cart button - open product detail dialog"""
+        # Mở dialog chi tiết sản phẩm để người dùng chọn tùy chọn
         self.handle_product_click(product)
 
     def refresh(self):

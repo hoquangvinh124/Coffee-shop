@@ -20,7 +20,8 @@ class CheckoutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Thanh toán")
-        self.resize(600, 700)
+        self.setMinimumSize(600, 750)
+        self.resize(600, 800)
 
         self.order_controller = OrderController()
         self.auth_controller = AuthController()
@@ -31,7 +32,21 @@ class CheckoutDialog(QDialog):
 
     def setup_ui(self):
         """Setup UI"""
-        layout = QVBoxLayout(self)
+        from PyQt6.QtWidgets import QScrollArea, QWidget
+        
+        # Main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Scroll area
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        
+        # Content widget
+        content_widget = QWidget()
+        layout = QVBoxLayout(content_widget)
+        layout.setContentsMargins(20, 10, 20, 10)
 
         # Title
         title = QLabel("Hoàn tất đơn hàng")
@@ -49,18 +64,18 @@ class CheckoutDialog(QDialog):
 
         self.order_type_group = QButtonGroup()
 
-        self.pickup_radio = QRadioButton("🏪 Nhận tại cửa hàng (Pickup)")
+        self.pickup_radio = QRadioButton("Nhận tại cửa hàng (Pickup)")
         self.pickup_radio.setChecked(True)
         self.pickup_radio.toggled.connect(self.on_order_type_changed)
         self.order_type_group.addButton(self.pickup_radio, 1)
         type_layout.addWidget(self.pickup_radio)
 
-        self.delivery_radio = QRadioButton("🚚 Giao hàng tận nơi (Delivery)")
+        self.delivery_radio = QRadioButton("Giao hàng tận nơi (Delivery)")
         self.delivery_radio.toggled.connect(self.on_order_type_changed)
         self.order_type_group.addButton(self.delivery_radio, 2)
         type_layout.addWidget(self.delivery_radio)
 
-        self.dinein_radio = QRadioButton("🍽️ Dùng tại chỗ (Dine-in)")
+        self.dinein_radio = QRadioButton("Dùng tại chỗ (Dine-in)")
         self.dinein_radio.toggled.connect(self.on_order_type_changed)
         self.order_type_group.addButton(self.dinein_radio, 3)
         type_layout.addWidget(self.dinein_radio)
@@ -127,13 +142,13 @@ class CheckoutDialog(QDialog):
 
         self.payment_combo = QComboBox()
         self.payment_combo.setMinimumHeight(40)
-        self.payment_combo.addItem("💵 Tiền mặt (Cash)", "cash")
-        self.payment_combo.addItem("📱 MoMo", "momo")
-        self.payment_combo.addItem("🛍️ ShopeePay", "shopeepay")
-        self.payment_combo.addItem("💳 ZaloPay", "zalopay")
-        self.payment_combo.addItem("🍎 Apple Pay", "applepay")
-        self.payment_combo.addItem("🤖 Google Pay", "googlepay")
-        self.payment_combo.addItem("💳 Thẻ ngân hàng", "card")
+        self.payment_combo.addItem("Tiền mặt (Cash)", "cash")
+        self.payment_combo.addItem("MoMo", "momo")
+        self.payment_combo.addItem("ShopeePay", "shopeepay")
+        self.payment_combo.addItem("ZaloPay", "zalopay")
+        self.payment_combo.addItem("Apple Pay", "applepay")
+        self.payment_combo.addItem("Google Pay", "googlepay")
+        self.payment_combo.addItem("Thẻ ngân hàng", "card")
         payment_layout.addWidget(self.payment_combo)
 
         layout.addWidget(payment_frame)
@@ -142,6 +157,8 @@ class CheckoutDialog(QDialog):
         notes_frame = QFrame()
         notes_frame.setFrameShape(QFrame.Shape.StyledPanel)
         notes_layout = QVBoxLayout(notes_frame)
+        notes_layout.setContentsMargins(10, 5, 10, 5)
+        notes_layout.setSpacing(5)
 
         notes_label = QLabel("Ghi chú:")
         notes_label.setStyleSheet("font-weight: bold;")
@@ -149,8 +166,9 @@ class CheckoutDialog(QDialog):
 
         self.notes_edit = QTextEdit()
         self.notes_edit.setPlaceholderText("Ghi chú cho đơn hàng (tùy chọn)...")
+        self.notes_edit.setMinimumHeight(60)
         self.notes_edit.setMaximumHeight(80)
-        notes_layout.addWidget(self.notes_edit)
+        notes_layout.addWidget(self.notes_edit, 1)
 
         layout.addWidget(notes_frame)
 
@@ -169,20 +187,51 @@ class CheckoutDialog(QDialog):
         summary_layout.addWidget(self.summary_label)
 
         layout.addWidget(summary_frame)
+        
+        # Set scroll area content
+        scroll.setWidget(content_widget)
+        main_layout.addWidget(scroll)
 
-        # Buttons
+        # Buttons (outside scroll area, always visible)
         button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(20, 10, 20, 10)
 
         cancel_btn = QPushButton("Hủy")
+        cancel_btn.setMinimumHeight(45)
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #666666;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #555555;
+            }
+        """)
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
 
         self.place_order_btn = QPushButton("Đặt hàng")
         self.place_order_btn.setMinimumHeight(45)
+        self.place_order_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #A31E25;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #8B1A1F;
+            }
+        """)
         self.place_order_btn.clicked.connect(self.handle_place_order)
         button_layout.addWidget(self.place_order_btn)
 
-        layout.addLayout(button_layout)
+        main_layout.addLayout(button_layout)
 
     def load_data(self):
         """Load stores and order summary"""

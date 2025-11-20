@@ -92,7 +92,7 @@ class AdminMainWindow(QMainWindow, Ui_AdminMainWindow):
             # Display role
             role = admin.get('role', 'staff')
             role_names = {
-                'super_admin': 'Super Admin',
+                'super_admin': 'System Administrator',
                 'admin': 'Admin',
                 'manager': 'Manager',
                 'staff': 'Staff'

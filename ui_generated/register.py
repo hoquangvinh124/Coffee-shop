@@ -90,7 +90,7 @@ class Ui_RegisterWindow(object):
 
     def retranslateUi(self, RegisterWindow):
         _translate = QtCore.QCoreApplication.translate
-        RegisterWindow.setWindowTitle(_translate("RegisterWindow", "Đăng ký - Coffee Shop"))
+        RegisterWindow.setWindowTitle(_translate("RegisterWindow", "Đăng ký - Highlands Coffee"))
         self.titleLabel.setText(_translate("RegisterWindow", "Đăng ký tài khoản"))
         self.fullNameLineEdit.setPlaceholderText(_translate("RegisterWindow", "Họ và tên"))
         self.emailLineEdit.setPlaceholderText(_translate("RegisterWindow", "Email"))

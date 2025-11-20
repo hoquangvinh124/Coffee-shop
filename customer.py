@@ -39,7 +39,7 @@ class CoffeeShopApp:
         # Create stacked widget for window management
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.setWindowTitle(APP_NAME)
-        self.stacked_widget.resize(1200, 800)
+        self.stacked_widget.resize(500, 600)
 
         # Test database connection
         self.check_database_connection()

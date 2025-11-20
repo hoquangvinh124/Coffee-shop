@@ -36,13 +36,13 @@ class OrderStatusDialog(QDialog):
         layout.addWidget(new_status_label)
 
         self.statusComboBox = QComboBox()
-        self.statusComboBox.addItem("⏳ Chờ xác nhận", "pending")
-        self.statusComboBox.addItem("✅ Đã xác nhận", "confirmed")
-        self.statusComboBox.addItem("👨‍🍳 Đang pha chế", "preparing")
-        self.statusComboBox.addItem("📦 Sẵn sàng", "ready")
-        self.statusComboBox.addItem("🚚 Đang giao", "delivering")
-        self.statusComboBox.addItem("✅ Hoàn thành", "completed")
-        self.statusComboBox.addItem("❌ Đã hủy", "cancelled")
+        self.statusComboBox.addItem("Chờ xác nhận", "pending")
+        self.statusComboBox.addItem("Đã xác nhận", "confirmed")
+        self.statusComboBox.addItem("Đang pha chế", "preparing")
+        self.statusComboBox.addItem("Sẵn sàng", "ready")
+        self.statusComboBox.addItem("Đang giao", "delivering")
+        self.statusComboBox.addItem("Hoàn thành", "completed")
+        self.statusComboBox.addItem("Đã hủy", "cancelled")
         self.statusComboBox.setMinimumHeight(40)
         layout.addWidget(self.statusComboBox)
 
@@ -83,13 +83,13 @@ class OrderStatusDialog(QDialog):
     def get_status_text(self, status):
         """Get Vietnamese status text"""
         status_map = {
-            'pending': '⏳ Chờ xác nhận',
-            'confirmed': '✅ Đã xác nhận',
-            'preparing': '👨‍🍳 Đang pha chế',
-            'ready': '📦 Sẵn sàng',
-            'delivering': '🚚 Đang giao',
-            'completed': '✅ Hoàn thành',
-            'cancelled': '❌ Đã hủy'
+            'pending': 'Chờ xác nhận',
+            'confirmed': 'Đã xác nhận',
+            'preparing': 'Đang pha chế',
+            'ready': 'Sẵn sàng',
+            'delivering': 'Đang giao',
+            'completed': 'Hoàn thành',
+            'cancelled': 'Đã hủy'
         }
         return status_map.get(status, status)
 
@@ -255,22 +255,22 @@ class AdminOrdersWidget(QWidget, Ui_AdminOrdersWidget):
     def get_order_type_text(self, order_type):
         """Get order type text"""
         type_map = {
-            'pickup': '🏪 Lấy tại cửa hàng',
-            'delivery': '🚚 Giao hàng',
-            'dine_in': '🍽️ Tại quầy'
+            'pickup': 'Lấy tại cửa hàng',
+            'delivery': 'Giao hàng',
+            'dine_in': 'Tại quầy'
         }
         return type_map.get(order_type, order_type)
 
     def get_status_text(self, status):
         """Get Vietnamese status text"""
         status_map = {
-            'pending': '⏳ Chờ xác nhận',
-            'confirmed': '✅ Đã xác nhận',
-            'preparing': '👨‍🍳 Đang pha chế',
-            'ready': '📦 Sẵn sàng',
-            'delivering': '🚚 Đang giao',
-            'completed': '✅ Hoàn thành',
-            'cancelled': '❌ Đã hủy'
+            'pending': 'Chờ xác nhận',
+            'confirmed': 'Đã xác nhận',
+            'preparing': 'Đang pha chế',
+            'ready': 'Sẵn sàng',
+            'delivering': 'Đang giao',
+            'completed': 'Hoàn thành',
+            'cancelled': 'Đã hủy'
         }
         return status_map.get(status, status)
 

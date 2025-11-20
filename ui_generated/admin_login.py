@@ -4,7 +4,7 @@ Auto-generated UI file for Admin Login
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QLineEdit, QPushButton, QFrame, QCheckBox)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QPixmap
 
 
 class Ui_AdminLoginWidget:
@@ -18,25 +18,24 @@ class Ui_AdminLoginWidget:
         # Main layout
         main_layout = QVBoxLayout(AdminLoginWidget)
         main_layout.setContentsMargins(40, 40, 40, 40)
-        main_layout.setSpacing(20)
+        main_layout.setSpacing(10)
 
         # Add stretch at top
         main_layout.addStretch()
 
-        # Logo/Title
-        title_label = QLabel("☕ Admin Panel")
-        title_label.setObjectName("titleLabel")
-        font = QFont()
-        font.setPointSize(28)
-        font.setBold(True)
-        title_label.setFont(font)
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #c7a17a;")
-        main_layout.addWidget(title_label)
+        # Logo
+        logo_label = QLabel()
+        logo_pixmap = QPixmap("resources/images/logo.png")
+        if not logo_pixmap.isNull():
+            scaled_logo = logo_pixmap.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            logo_label.setPixmap(scaled_logo)
+        logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_label.setStyleSheet("margin-bottom: 0px;")
+        main_layout.addWidget(logo_label)
 
         subtitle_label = QLabel("Quản trị hệ thống")
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("color: #666; font-size: 14px;")
+        subtitle_label.setStyleSheet("color: #A31E25; font-size: 16px; font-weight: bold; margin-top: 0px; padding-top: 0px;")
         main_layout.addWidget(subtitle_label)
 
         main_layout.addSpacing(20)

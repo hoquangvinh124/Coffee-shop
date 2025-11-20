@@ -5,9 +5,11 @@ User profile management with full features
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QFrame, QLineEdit, QMessageBox, QScrollArea)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap, QImageReader
 from controllers.user_controller import UserController
 from controllers.auth_controller import AuthController
 from utils.validators import format_currency
+import os
 
 
 class ProfileWidget(QWidget):
@@ -17,6 +19,9 @@ class ProfileWidget(QWidget):
         super().__init__(parent)
         self.user_controller = UserController()
         self.auth_controller = AuthController()
+        
+        # Increase image allocation limit to 512MB
+        QImageReader.setAllocationLimit(512)
 
         self.setup_ui()
         self.load_profile()
@@ -43,12 +48,27 @@ class ProfileWidget(QWidget):
         profile_frame.setFrameShape(QFrame.Shape.StyledPanel)
         profile_frame.setStyleSheet("background-color: #f9f9f9; padding: 20px;")
         profile_layout = QVBoxLayout(profile_frame)
+        profile_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Avatar placeholder
-        avatar_label = QLabel("👤")
+        # Avatar image
+        avatar_label = QLabel()
+        avatar_label.setFixedSize(120, 120)
+        avatar_label.setScaledContents(False)
+        
+        # Try to load avatar image
+        avatar_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "images", "avatar.jpg")
+        
+        avatar_pixmap = QPixmap(avatar_path)
+        
+        if not avatar_pixmap.isNull():
+            scaled_pixmap = avatar_pixmap.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            avatar_label.setPixmap(scaled_pixmap)
+        else:
+            avatar_label.setText("👤")
+            avatar_label.setStyleSheet("font-size: 60px;")
+        
         avatar_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        avatar_label.setStyleSheet("font-size: 80px; padding: 10px;")
-        profile_layout.addWidget(avatar_label)
+        profile_layout.addWidget(avatar_label, 0, Qt.AlignmentFlag.AlignCenter)
 
         # Name
         self.name_label = QLabel()
@@ -69,7 +89,7 @@ class ProfileWidget(QWidget):
         membership_frame.setFrameShape(QFrame.Shape.StyledPanel)
         membership_layout = QVBoxLayout(membership_frame)
 
-        membership_title = QLabel("🏆 Hạng thành viên")
+        membership_title = QLabel("Hạng thành viên")
         membership_title.setStyleSheet("font-weight: bold; font-size: 16px;")
         membership_layout.addWidget(membership_title)
 
@@ -110,15 +130,16 @@ class ProfileWidget(QWidget):
         edit_btn = QPushButton("Chỉnh sửa thông tin")
         edit_btn.setStyleSheet("""
             QPushButton {
-                background-color: #8B4513;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 10px;
                 border-radius: 5px;
                 font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #A0522D;
+                background-color: #8B181F;
             }
         """)
         edit_btn.clicked.connect(self.handle_edit_profile)
@@ -127,15 +148,16 @@ class ProfileWidget(QWidget):
         change_password_btn = QPushButton("Đổi mật khẩu")
         change_password_btn.setStyleSheet("""
             QPushButton {
-                background-color: #8B4513;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 10px;
                 border-radius: 5px;
                 font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #A0522D;
+                background-color: #8B181F;
             }
         """)
         change_password_btn.clicked.connect(self.handle_change_password)
@@ -144,15 +166,16 @@ class ProfileWidget(QWidget):
         points_history_btn = QPushButton("Lịch sử điểm thưởng")
         points_history_btn.setStyleSheet("""
             QPushButton {
-                background-color: #8B4513;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 10px;
                 border-radius: 5px;
                 font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #A0522D;
+                background-color: #8B181F;
             }
         """)
         points_history_btn.clicked.connect(self.handle_points_history)
@@ -161,15 +184,16 @@ class ProfileWidget(QWidget):
         vouchers_btn = QPushButton("Voucher của tôi")
         vouchers_btn.setStyleSheet("""
             QPushButton {
-                background-color: #8B4513;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 10px;
                 border-radius: 5px;
                 font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #A0522D;
+                background-color: #8B181F;
             }
         """)
         vouchers_btn.clicked.connect(self.handle_vouchers)

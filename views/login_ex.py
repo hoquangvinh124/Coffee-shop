@@ -2,7 +2,7 @@
 Login Window - Extended Logic
 Inherits from generated UI file
 """
-from PyQt6.QtWidgets import QWidget, QMessageBox
+from PyQt6.QtWidgets import QWidget, QMessageBox, QLabel
 from PyQt6.QtCore import pyqtSignal
 from ui_generated.login import Ui_LoginWindow
 from controllers.auth_controller import AuthController
@@ -35,6 +35,49 @@ class LoginWindow(QWidget, Ui_LoginWindow):
         # Enable return key press to login
         self.emailLineEdit.returnPressed.connect(self.handle_login)
         self.passwordLineEdit.returnPressed.connect(self.handle_login)
+
+        # --- UI Customization ---
+        # 1. Change Title
+        self.titleLabel.setText("Highlands ở đây rồi — Hôm nay uống gì nào ?")
+        
+        # 2. Style Login Button (Red, Rounded)
+        self.loginButton.setStyleSheet("""
+            QPushButton {
+                background-color: #b22830;
+                color: white;
+                border: none;
+                border-radius: 20px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #d32f2f;
+            }
+            QPushButton:pressed {
+                background-color: #9a0007;
+            }
+        """)
+        
+        # 3. Style Register Button (Text only)
+        self.registerButton.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #b22830;
+                border: none;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                text-decoration: underline;
+            }
+        """)
+        
+        # 4. Remove Version Label
+        for label in self.findChildren(QLabel):
+            if "Coffee Shop Management System" in label.text():
+                label.hide()
+                break
 
     def handle_login(self):
         """Handle login button click"""

@@ -95,30 +95,49 @@ class VoucherDialog(QDialog):
 
     def load_data(self):
         from datetime import datetime
-        self.code_edit.setText(self.voucher['code'])
-        self.name_edit.setText(self.voucher['name'])
-        self.desc_edit.setPlainText(self.voucher.get('description', ''))
-        
-        idx = self.type_combo.findData(self.voucher['discount_type'])
-        if idx >= 0:
-            self.type_combo.setCurrentIndex(idx)
-        
-        self.value_spin.setValue(float(self.voucher['discount_value']))
-        self.min_order_spin.setValue(float(self.voucher.get('min_order_amount', 0)))
-        self.max_discount_spin.setValue(float(self.voucher.get('max_discount_amount', 0)))
-        self.usage_limit_spin.setValue(self.voucher.get('usage_limit', 0))
-        
-        if isinstance(self.voucher['valid_from'], datetime):
-            self.from_date.setDate(QDate(self.voucher['valid_from'].year, 
-                                         self.voucher['valid_from'].month, 
-                                         self.voucher['valid_from'].day))
-        
-        if isinstance(self.voucher['valid_until'], datetime):
-            self.to_date.setDate(QDate(self.voucher['valid_until'].year, 
-                                       self.voucher['valid_until'].month, 
-                                       self.voucher['valid_until'].day))
-        
-        self.active_check.setChecked(self.voucher['is_active'])
+        try:
+            print(f"Loading voucher data: {self.voucher}")  # Debug
+
+            self.code_edit.setText(self.voucher['code'])
+            self.name_edit.setText(self.voucher['name'])
+            self.desc_edit.setPlainText(self.voucher.get('description', ''))
+
+            idx = self.type_combo.findData(self.voucher['discount_type'])
+            if idx >= 0:
+                self.type_combo.setCurrentIndex(idx)
+
+            self.value_spin.setValue(float(self.voucher['discount_value']))
+            self.min_order_spin.setValue(float(self.voucher.get('min_order_amount', 0)))
+            self.max_discount_spin.setValue(float(self.voucher.get('max_discount_amount', 0) or 0))
+            self.usage_limit_spin.setValue(self.voucher.get('usage_limit', 0) or 0)
+
+            # Handle start_date
+            start_date = self.voucher.get('start_date')
+            if start_date:
+                if isinstance(start_date, datetime):
+                    self.from_date.setDate(QDate(start_date.year, start_date.month, start_date.day))
+                else:
+                    # Try to parse string date
+                    from datetime import datetime as dt
+                    date_obj = dt.strptime(str(start_date)[:10], '%Y-%m-%d')
+                    self.from_date.setDate(QDate(date_obj.year, date_obj.month, date_obj.day))
+
+            # Handle end_date
+            end_date = self.voucher.get('end_date')
+            if end_date:
+                if isinstance(end_date, datetime):
+                    self.to_date.setDate(QDate(end_date.year, end_date.month, end_date.day))
+                else:
+                    # Try to parse string date
+                    from datetime import datetime as dt
+                    date_obj = dt.strptime(str(end_date)[:10], '%Y-%m-%d')
+                    self.to_date.setDate(QDate(date_obj.year, date_obj.month, date_obj.day))
+
+            self.active_check.setChecked(bool(self.voucher.get('is_active', True)))
+        except Exception as e:
+            print(f"Error loading voucher data: {e}")
+            import traceback
+            traceback.print_exc()
 
     def get_data(self):
         return {
@@ -130,8 +149,8 @@ class VoucherDialog(QDialog):
             'min_order_amount': self.min_order_spin.value(),
             'max_discount_amount': self.max_discount_spin.value() if self.max_discount_spin.value() > 0 else None,
             'usage_limit': self.usage_limit_spin.value() if self.usage_limit_spin.value() > 0 else None,
-            'valid_from': self.from_date.date().toString("yyyy-MM-dd"),
-            'valid_until': self.to_date.date().toString("yyyy-MM-dd"),
+            'start_date': self.from_date.date().toString("yyyy-MM-dd"),
+            'end_date': self.to_date.date().toString("yyyy-MM-dd"),
             'is_active': self.active_check.isChecked()
         }
 
@@ -217,18 +236,18 @@ class AdminVouchersWidget(QWidget):
                 usage += f"/{v['usage_limit']}"
             self.table.setItem(row, 4, QTableWidgetItem(usage))
             
-            from_date = v['valid_from']
+            from_date = v.get('start_date')
             if isinstance(from_date, datetime):
                 from_str = from_date.strftime("%d/%m/%Y")
             else:
-                from_str = str(from_date)
+                from_str = str(from_date) if from_date else ""
             self.table.setItem(row, 5, QTableWidgetItem(from_str))
-            
-            to_date = v['valid_until']
+
+            to_date = v.get('end_date')
             if isinstance(to_date, datetime):
                 to_str = to_date.strftime("%d/%m/%Y")
             else:
-                to_str = str(to_date)
+                to_str = str(to_date) if to_date else ""
             self.table.setItem(row, 6, QTableWidgetItem(to_str))
 
             action_widget = QWidget()
@@ -240,19 +259,19 @@ class AdminVouchersWidget(QWidget):
             edit_btn = QPushButton("Sửa")
             edit_btn.setToolTip("Sửa voucher")
             edit_btn.setStyleSheet("background-color: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
-            edit_btn.clicked.connect(lambda checked, x=v: self.handle_edit(x))
+            edit_btn.clicked.connect(lambda checked, voucher=v: self.handle_edit(voucher))
             action_layout.addWidget(edit_btn)
 
             toggle_btn = QPushButton("Tắt" if v['is_active'] else "Bật")
             toggle_btn.setToolTip("Bật/Tắt voucher")
             toggle_btn.setStyleSheet("background-color: #FF9800; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
-            toggle_btn.clicked.connect(lambda checked, x=v: self.handle_toggle(x))
+            toggle_btn.clicked.connect(lambda checked, voucher=v: self.handle_toggle(voucher))
             action_layout.addWidget(toggle_btn)
 
             delete_btn = QPushButton("Xóa")
             delete_btn.setToolTip("Xóa voucher")
             delete_btn.setStyleSheet("background-color: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 3px; font-size: 12px;")
-            delete_btn.clicked.connect(lambda checked, x=v: self.handle_delete(x))
+            delete_btn.clicked.connect(lambda checked, voucher=v: self.handle_delete(voucher))
             action_layout.addWidget(delete_btn)
 
             self.table.setCellWidget(row, 7, action_widget)
@@ -284,34 +303,53 @@ class AdminVouchersWidget(QWidget):
                 QMessageBox.warning(self, "Lỗi", msg)
 
     def handle_edit(self, v):
-        dialog = VoucherDialog(v, self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            admin_id = self.admin_controller.get_current_admin_id()
-            success, msg = self.voucher_controller.update_voucher(v['id'], dialog.get_data(), admin_id)
-            if success:
-                QMessageBox.information(self, "Thành công", msg)
-                self.load_vouchers()
-            else:
-                QMessageBox.warning(self, "Lỗi", msg)
+        try:
+            dialog = VoucherDialog(v, self)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                admin_id = self.admin_controller.get_current_admin_id()
+                data = dialog.get_data()
+                success, msg = self.voucher_controller.update_voucher(v['id'], data, admin_id)
+                if success:
+                    QMessageBox.information(self, "Thành công", msg)
+                    self.load_vouchers()
+                else:
+                    QMessageBox.warning(self, "Lỗi", msg)
+        except Exception as e:
+            print(f"Error in handle_edit: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Lỗi", f"Lỗi khi sửa voucher: {str(e)}")
 
     def handle_toggle(self, v):
-        admin_id = self.admin_controller.get_current_admin_id()
-        success, msg = self.voucher_controller.toggle_voucher_status(v['id'], admin_id)
-        if success:
-            self.load_vouchers()
-        else:
-            QMessageBox.warning(self, "Lỗi", msg)
-
-    def handle_delete(self, v):
-        reply = QMessageBox.question(self, "Xác nhận", f"Xóa voucher '{v['code']}'?")
-        if reply == QMessageBox.StandardButton.Yes:
+        try:
             admin_id = self.admin_controller.get_current_admin_id()
-            success, msg = self.voucher_controller.delete_voucher(v['id'], admin_id)
+            success, msg = self.voucher_controller.toggle_voucher_status(v['id'], admin_id)
             if success:
-                QMessageBox.information(self, "Thành công", msg)
                 self.load_vouchers()
             else:
                 QMessageBox.warning(self, "Lỗi", msg)
+        except Exception as e:
+            print(f"Error in handle_toggle: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Lỗi", f"Lỗi khi bật/tắt voucher: {str(e)}")
+
+    def handle_delete(self, v):
+        try:
+            reply = QMessageBox.question(self, "Xác nhận", f"Xóa voucher '{v['code']}'?")
+            if reply == QMessageBox.StandardButton.Yes:
+                admin_id = self.admin_controller.get_current_admin_id()
+                success, msg = self.voucher_controller.delete_voucher(v['id'], admin_id)
+                if success:
+                    QMessageBox.information(self, "Thành công", msg)
+                    self.load_vouchers()
+                else:
+                    QMessageBox.warning(self, "Lỗi", msg)
+        except Exception as e:
+            print(f"Error in handle_delete: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Lỗi", f"Lỗi khi xóa voucher: {str(e)}")
 
     def refresh(self):
         self.load_vouchers()

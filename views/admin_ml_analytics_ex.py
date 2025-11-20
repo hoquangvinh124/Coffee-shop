@@ -775,7 +775,7 @@ class AdminMLAnalyticsWidget(QWidget):
 
     def create_ai_chat_section(self):
         """Create AI Chat Assistant section"""
-        group = QGroupBox("🤖 AI Chat Assistant - Hỏi đáp về Dự Báo")
+        group = QGroupBox("AI Chat Assistant - Hỏi đáp về Dự Báo")
         group.setStyleSheet("""
             QGroupBox {
                 font-weight: bold;

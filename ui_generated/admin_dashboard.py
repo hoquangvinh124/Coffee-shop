@@ -79,7 +79,7 @@ class Ui_AdminDashboardWidget:
         card.setMinimumHeight(130)
         card.setStyleSheet("""
             QFrame {
-                background-color: white;
+                background-color: #F9F3EF;
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
             }

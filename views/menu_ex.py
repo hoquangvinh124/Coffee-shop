@@ -202,9 +202,31 @@ class MenuWidget(QWidget, Ui_MenuWidget):
         self.prevButton.clicked.connect(self.prev_page)
         self.nextButton.clicked.connect(self.next_page)
 
+        # Add Highlands Coffee banner
+        self.add_banner()
+
         # Load categories and products
         self.load_categories()
         self.load_products()
+
+    def add_banner(self):
+        """Add a promotional banner to the top of the menu"""
+        try:
+            banner_path = "resources/images/banner.jpg"
+            pixmap = QPixmap(banner_path)
+            
+            if not pixmap.isNull():
+                banner_container = QLabel()
+                banner_container.setPixmap(pixmap)
+                banner_container.setScaledContents(True)
+                banner_container.setMinimumHeight(200)
+                banner_container.setMaximumHeight(250)
+                
+                # Insert at the top of content layout (index 0)
+                self.contentLayout.insertWidget(0, banner_container)
+            
+        except Exception as e:
+            pass
 
     def load_categories(self):
         """Load product categories as tabs"""

@@ -270,7 +270,7 @@ class ProductDetailDialog(QDialog):
         self.add_to_cart_btn.setMinimumWidth(200)
         self.add_to_cart_btn.setStyleSheet("""
             QPushButton {
-                background-color: #c7a17a;
+                background-color: #A31E25;
                 color: white;
                 border: none;
                 padding: 10px;
@@ -279,10 +279,10 @@ class ProductDetailDialog(QDialog):
                 font-size: 14px;
             }
             QPushButton:hover {
-                background-color: #b8926b;
+                background-color: #8B181F;
             }
             QPushButton:pressed {
-                background-color: #a07856;
+                background-color: #6d1218;
             }
         """)
         self.add_to_cart_btn.clicked.connect(self.handle_add_to_cart)

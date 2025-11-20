@@ -23,7 +23,7 @@ class Ui_FavoritesWidget:
 
         title_label = QLabel("❤️ Sản phẩm yêu thích")
         title_label.setObjectName("titleLabel")
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+        title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
         header_layout.addWidget(title_label)
 
         header_layout.addStretch()
@@ -40,10 +40,10 @@ class Ui_FavoritesWidget:
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("background-color: white;")
+        scroll.setStyleSheet("background-color: #F9F3EF;")
 
         scroll_content = QWidget()
-        scroll_content.setStyleSheet("background-color: white;")
+        scroll_content.setStyleSheet("background-color: #F9F3EF;")
         self.favoritesGridLayout = QGridLayout(scroll_content)
         self.favoritesGridLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.favoritesGridLayout.setSpacing(20)

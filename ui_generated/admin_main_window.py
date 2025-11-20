@@ -76,7 +76,7 @@ class Ui_AdminMainWindow(object):
         self.vouchersButton.setMinimumHeight(45)
         self.sidebarLayout.addWidget(self.vouchersButton)
 
-        self.reportsButton = QtWidgets.QPushButton("Báo cáo")
+        self.reportsButton = QtWidgets.QPushButton("Dự Báo KPI Logistic")
         self.reportsButton.setMinimumHeight(45)
         self.sidebarLayout.addWidget(self.reportsButton)
 
@@ -113,4 +113,4 @@ class Ui_AdminMainWindow(object):
 
     def retranslateUi(self, AdminMainWindow):
         _translate = QtCore.QCoreApplication.translate
-        AdminMainWindow.setWindowTitle(_translate("AdminMainWindow", "Coffee Shop Admin"))
+        AdminMainWindow.setWindowTitle(_translate("AdminMainWindow", "Highlands Coffee Admin"))

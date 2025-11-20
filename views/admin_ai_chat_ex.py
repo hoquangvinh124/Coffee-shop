@@ -133,7 +133,7 @@ class AdminAIChatWidget(QWidget):
         # Header
         header_layout = QHBoxLayout()
 
-        title_label = QLabel("🤖 AI Analytics Assistant")
+        title_label = QLabel("AI Analytics Assistant")
         title_font = QFont()
         title_font.setPointSize(18)
         title_font.setBold(True)

@@ -23,9 +23,9 @@ class AdminVoucherController:
             params = []
 
             if status == 'active':
-                query += " AND v.is_active = 1 AND v.valid_from <= NOW() AND v.valid_until >= NOW()"
+                query += " AND v.is_active = 1 AND v.start_date <= NOW() AND v.end_date >= NOW()"
             elif status == 'expired':
-                query += " AND v.valid_until < NOW()"
+                query += " AND v.end_date < NOW()"
             elif status == 'inactive':
                 query += " AND v.is_active = 0"
 
@@ -67,7 +67,7 @@ class AdminVoucherController:
         """Create new voucher"""
         try:
             # Required fields
-            required = ['code', 'name', 'discount_type', 'discount_value', 'valid_from', 'valid_until']
+            required = ['code', 'name', 'discount_type', 'discount_value', 'start_date', 'end_date']
             for field in required:
                 if field not in data or data[field] is None or data[field] == '':
                     return False, f"Thiếu trường {field}"
@@ -94,8 +94,8 @@ class AdminVoucherController:
                 """INSERT INTO vouchers
                    (code, name, description, discount_type, discount_value,
                     min_order_amount, max_discount_amount, usage_limit,
-                    valid_from, valid_until, is_active, created_at, updated_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())""",
+                    start_date, end_date, is_active, created_at)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())""",
                 (
                     data['code'].upper(),
                     data['name'],
@@ -105,8 +105,8 @@ class AdminVoucherController:
                     data.get('min_order_amount', 0),
                     data.get('max_discount_amount', None),
                     data.get('usage_limit', None),
-                    data['valid_from'],
-                    data['valid_until'],
+                    data['start_date'],
+                    data['end_date'],
                     data.get('is_active', True)
                 )
             )
@@ -131,6 +131,12 @@ class AdminVoucherController:
             if not old_voucher:
                 return False, "Không tìm thấy voucher"
 
+            # Required fields validation
+            required = ['code', 'name', 'discount_type', 'discount_value', 'start_date', 'end_date']
+            for field in required:
+                if field not in data or data[field] is None or data[field] == '':
+                    return False, f"Thiếu trường {field}"
+
             # Check if code exists (excluding current)
             if data['code'] != old_voucher['code']:
                 existing = db.fetch_one(
@@ -141,13 +147,21 @@ class AdminVoucherController:
                 if existing:
                     return False, "Mã voucher đã tồn tại"
 
+            # Validate discount type
+            if data['discount_type'] not in ['percentage', 'fixed']:
+                return False, "Loại giảm giá không hợp lệ"
+
+            # Validate percentage
+            if data['discount_type'] == 'percentage' and (data['discount_value'] < 0 or data['discount_value'] > 100):
+                return False, "Phần trăm giảm giá phải từ 0-100"
+
             # Update voucher
             db.execute_query(
                 """UPDATE vouchers SET
                    code = %s, name = %s, description = %s, discount_type = %s,
                    discount_value = %s, min_order_amount = %s, max_discount_amount = %s,
-                   usage_limit = %s, valid_from = %s, valid_until = %s,
-                   is_active = %s, updated_at = NOW()
+                   usage_limit = %s, start_date = %s, end_date = %s,
+                   is_active = %s
                    WHERE id = %s""",
                 (
                     data['code'].upper(),
@@ -158,8 +172,8 @@ class AdminVoucherController:
                     data.get('min_order_amount', 0),
                     data.get('max_discount_amount', None),
                     data.get('usage_limit', None),
-                    data['valid_from'],
-                    data['valid_until'],
+                    data['start_date'],
+                    data['end_date'],
                     data.get('is_active', True),
                     voucher_id
                 )
@@ -217,7 +231,7 @@ class AdminVoucherController:
             new_status = not voucher['is_active']
 
             db.execute_query(
-                "UPDATE vouchers SET is_active = %s, updated_at = NOW() WHERE id = %s",
+                "UPDATE vouchers SET is_active = %s WHERE id = %s",
                 (new_status, voucher_id)
             )
 
@@ -270,13 +284,13 @@ class AdminVoucherController:
             # Active vouchers
             result = db.fetch_one(
                 """SELECT COUNT(*) as count FROM vouchers
-                   WHERE is_active = 1 AND valid_from <= NOW() AND valid_until >= NOW()"""
+                   WHERE is_active = 1 AND start_date <= NOW() AND end_date >= NOW()"""
             )
             stats['active'] = result['count'] if result else 0
 
             # Expired vouchers
             result = db.fetch_one(
-                "SELECT COUNT(*) as count FROM vouchers WHERE valid_until < NOW()"
+                "SELECT COUNT(*) as count FROM vouchers WHERE end_date < NOW()"
             )
             stats['expired'] = result['count'] if result else 0
 
